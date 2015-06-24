@@ -20,6 +20,9 @@
 		8459983A1B1FA5E400B0B659 /* AlbumsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 845998391B1FA5E400B0B659 /* AlbumsTableViewController.m */; };
 		8459983D1B1FAC1C00B0B659 /* AddArtistViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8459983C1B1FAC1C00B0B659 /* AddArtistViewController.m */; };
 		845998401B1FB07D00B0B659 /* AddArtist.m in Sources */ = {isa = PBXBuildFile; fileRef = 8459983F1B1FB07D00B0B659 /* AddArtist.m */; };
+		845998421B1FDBA300B0B659 /* Spotify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 845998411B1FDBA300B0B659 /* Spotify.framework */; };
+		8499449C1B2032080080733F /* customTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8499449B1B2032080080733F /* customTableViewCell.m */; };
+		8499449E1B3B570E0080733F /* profile_default.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8499449D1B3B570E0080733F /* profile_default.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +61,10 @@
 		8459983C1B1FAC1C00B0B659 /* AddArtistViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddArtistViewController.m; sourceTree = "<group>"; };
 		8459983E1B1FB07D00B0B659 /* AddArtist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddArtist.h; sourceTree = "<group>"; };
 		8459983F1B1FB07D00B0B659 /* AddArtist.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddArtist.m; sourceTree = "<group>"; };
+		845998411B1FDBA300B0B659 /* Spotify.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Spotify.framework; sourceTree = "<group>"; };
+		8499449A1B2032080080733F /* customTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = customTableViewCell.h; sourceTree = "<group>"; };
+		8499449B1B2032080080733F /* customTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = customTableViewCell.m; sourceTree = "<group>"; };
+		8499449D1B3B570E0080733F /* profile_default.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = profile_default.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				845998421B1FDBA300B0B659 /* Spotify.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,6 +109,7 @@
 			children = (
 				8459982F1B1F914100B0B659 /* ArtistsTableViewController.h */,
 				845998301B1F914100B0B659 /* ArtistsTableViewController.m */,
+				845998411B1FDBA300B0B659 /* Spotify.framework */,
 				8459983B1B1FAC1C00B0B659 /* AddArtistViewController.h */,
 				8459983C1B1FAC1C00B0B659 /* AddArtistViewController.m */,
 				8459980D1B1F846000B0B659 /* AppDelegate.h */,
@@ -108,6 +117,8 @@
 				845998101B1F846000B0B659 /* ViewController.h */,
 				845998111B1F846000B0B659 /* ViewController.m */,
 				845998131B1F846000B0B659 /* Main.storyboard */,
+				8499449A1B2032080080733F /* customTableViewCell.h */,
+				8499449B1B2032080080733F /* customTableViewCell.m */,
 				8459983E1B1FB07D00B0B659 /* AddArtist.h */,
 				8459983F1B1FB07D00B0B659 /* AddArtist.m */,
 				845998381B1FA5E400B0B659 /* AlbumsTableViewController.h */,
@@ -117,6 +128,7 @@
 				845998361B1F98F800B0B659 /* Album.m */,
 				845998331B1F93AF00B0B659 /* Artist.m */,
 				845998161B1F846000B0B659 /* Images.xcassets */,
+				8499449D1B3B570E0080733F /* profile_default.jpg */,
 				845998181B1F846000B0B659 /* LaunchScreen.xib */,
 				845998091B1F846000B0B659 /* Supporting Files */,
 			);
@@ -232,6 +244,7 @@
 				845998151B1F846000B0B659 /* Main.storyboard in Resources */,
 				8459981A1B1F846000B0B659 /* LaunchScreen.xib in Resources */,
 				845998171B1F846000B0B659 /* Images.xcassets in Resources */,
+				8499449E1B3B570E0080733F /* profile_default.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,6 +262,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8499449C1B2032080080733F /* customTableViewCell.m in Sources */,
 				8459983A1B1FA5E400B0B659 /* AlbumsTableViewController.m in Sources */,
 				845998311B1F914100B0B659 /* ArtistsTableViewController.m in Sources */,
 				845998121B1F846000B0B659 /* ViewController.m in Sources */,
@@ -385,8 +399,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/BandStalker",
+				);
 				INFOPLIST_FILE = BandStalker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				"OTHER_LDFLAGS[arch=*]" = (
+					"$(OTHER_LDFLAGS)",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -395,8 +417,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/BandStalker",
+				);
 				INFOPLIST_FILE = BandStalker/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				"OTHER_LDFLAGS[arch=*]" = (
+					"$(OTHER_LDFLAGS)",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -454,6 +484,7 @@
 				8459982B1B1F846100B0B659 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8459982C1B1F846100B0B659 /* Build configuration list for PBXNativeTarget "BandStalkerTests" */ = {
 			isa = XCConfigurationList;
@@ -462,6 +493,7 @@
 				8459982E1B1F846100B0B659 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

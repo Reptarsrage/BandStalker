@@ -15,11 +15,14 @@
 
 @property (nonatomic, retain)NSString *name;
 @property (nonatomic, retain)NSString *id;
-@property (nonatomic, retain)NSString *image_url_small;
-@property (nonatomic, retain)NSString *image_url_med;
-@property (nonatomic, retain)NSString *image_url_large;
-@property (nonatomic, retain)NSString *href;
+@property (nonatomic) double popularity;
+@property (nonatomic) long followers;
+@property (nonatomic, retain)NSURL *image_url_small;
+@property (nonatomic, retain)NSURL *image_url_med;
+@property (nonatomic, retain)NSURL *image_url_large;
+@property (nonatomic, retain)NSURL *href;
 @property (nonatomic, retain, readonly) NSMutableArray *albums;
+@property NSInteger sectionNumber;
 
 - (void)addToAlbums: (Album *)album;
 

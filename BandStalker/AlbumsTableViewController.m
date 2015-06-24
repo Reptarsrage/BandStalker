@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Admin. All rights reserved.
 //
 
+@import MediaPlayer;
 #import "AlbumsTableViewController.h"
 
 @interface AlbumsTableViewController ()
@@ -28,6 +29,13 @@
     Album *a3 = [[Album alloc] init];
     a3.name = @"Asylum";
     [self.albums addObject:a3];
+    
+    for (MPMediaItemCollection *collection in [[MPMediaQuery albumsQuery] collections]) {
+        a1 = [[Album alloc] init];
+        a1.name = [[collection representativeItem] valueForProperty:MPMediaItemPropertyAlbumTitle];
+        //MPMediaItemPropertyReleaseDate
+        [self.albums addObject:a1];
+    }
 }
 
 - (void)viewDidLoad {

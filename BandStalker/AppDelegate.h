@@ -7,11 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Spotify/Spotify.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-
+extern NSString *SpotifyAccessToken;
+extern SPTSession *SpotifySession;
 
 @end
 

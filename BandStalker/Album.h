@@ -15,10 +15,10 @@
 @property (nonatomic, retain)NSString *name;
 @property (nonatomic, retain)NSString *id;
 @property (nonatomic, retain)NSDate *releaseDate;
-@property (nonatomic, retain)NSString *image_url_small;
-@property (nonatomic, retain)NSString *image_url_med;
-@property (nonatomic, retain)NSString *image_url_large;
-@property (nonatomic, retain)NSString *href;
+@property (nonatomic, retain)NSURL *image_url_small;
+@property (nonatomic, retain)NSURL *image_url_med;
+@property (nonatomic, retain)NSURL *image_url_large;
+@property (nonatomic, retain)NSURL *href;
 @property (nonatomic, retain)NSString *artist;
 
 
