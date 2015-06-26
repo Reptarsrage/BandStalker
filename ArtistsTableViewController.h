@@ -13,9 +13,10 @@
 
 @interface ArtistsTableViewController : UITableViewController
 
-extern NSMutableArray *artistIDs;
-
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue;
 
+- (void) addAlbum:(Album *)album toArtist:(NSString *)artistName;
+
+- (void) artistInfoCallback:(BOOL)success artist:(Artist *)artist error:(NSError *)error;
 
 @end

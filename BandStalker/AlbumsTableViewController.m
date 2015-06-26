@@ -13,203 +13,63 @@
 #import "customTableViewCell.h"
 #import "ArtistsTableViewController.h"
 #import "AlbumsTableViewController.h"
+#import "AlbumDrilldownViewController.h"
 
 @interface AlbumsTableViewController ()
 @property NSMutableArray *albums;
 @end
 
+SpotifyManager *sharedManager;
+
 @implementation AlbumsTableViewController
 
-
--(void)getDetailedAlbumInfo:(NSMutableArray *)uris withPage:(NSURLRequest *)nextPage {
-    NSError *error;
-    NSURLRequest *req;
-    
-    if (nextPage == nil) {
-        req = [SPTAlbum createRequestForAlbums:uris withAccessToken:SpotifyAccessToken market:nil error:&error];
-    } else {
-        req = nextPage;
-    }
-        [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-        if (error != nil) {
-            if ([error code] == 1001) {
-                [self getDetailedAlbumInfo:uris withPage:nextPage];
-            } else {
-                NSLog(@"Error retrieving detailed album info for multiple albums: %@", error);
-            }
-            
+- (void) albumInfoCallback:(BOOL)success album:(Album *)album error:(NSError *)error {
+    if (success) {
+        // find correct place and add object
+        album.sectionNumber = [self getAlbumSection:album.releaseDate];
+        
+        if (album.sectionNumber < 0) {
             return;
         }
         
-            NSArray *json = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
-            if (error != nil) {
-                NSLog(@"Error parsing JSON data for albums.");
-                return;
+        NSUInteger index = [[self.albums objectAtIndex:album.sectionNumber] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+            if ([[(Album *)obj name] caseInsensitiveCompare:album.name] == NSOrderedDescending) {
+                *stop = YES;
+                return YES;
             }
-            NSArray *albums = [SPTAlbum albumsFromDecodedJSON:json error:&error];
-            
-            
-            
-        if (error != nil) {
-            NSLog(@"Error parsing detailed album data for multiple albums: %@", error);
-            return;
-        }
+            return NO;
+        }];
         
-        for (SPTAlbum *album in albums) {
-            Album *a = [[Album alloc] init];
-            a.name = album.name;
-            a.id = (NSString *)album.uri;
-            a.releaseDate = album.releaseDate;
-            a.sectionNumber = [self getAlbumSection:a.releaseDate];
-            a.artist = [(SPTArtist *)[album.artists firstObject] name];
-            a.image_url_large = album.largestCover.imageURL;
-            a.image_url_small = album.smallestCover.imageURL;
-            a.image_url_med = nil;
-            a.href = album.sharingURL;
-            a.popularity = album.popularity;
-            
-            switch (album.type) {
-                case SPTAlbumTypeAlbum:
-                    a.type = @"Full Album";
-                    break;
-                case SPTAlbumTypeSingle:
-                    a.type = @"Single";
-                    break;
-                case SPTAlbumTypeCompilation:
-                    a.type = @"Compilation";
-                    break;
-                case SPTAlbumTypeAppearsOn:
-                    a.type = @"Appears on";
-                    break;
-                default:
-                    break;
-            }
-
-            NSInteger length = [(SPTListPage *)album.firstTrackPage totalListLength];
-            for (int i=0; i < length; i++) {
-                Track *t = [[Track alloc] init];
-                t.trackNumber = i + 1;
-                t.name = @"Unkown";
-                [a addToTracks:t];
-            }
-            
-            for (SPTPartialTrack *track in [(SPTListPage *)album.firstTrackPage items]) {
-                Track *t = [a.tracks objectAtIndex:track.trackNumber - 1];
-                t.id = (NSString *)track.uri;
-                t.discNumber = track.discNumber;
-                t.href = track.sharingURL;
-                t.preview = track.previewURL;
-                t.duration = track.duration;
-                t.flaggedExplicit = track.flaggedExplicit;
-                t.name = track.name;
-            }
-            
-            a.nextTrackPageUrl = [(SPTListPage *)album.firstTrackPage nextPageURL];
-            
-            // find correct place and add object
-            if (a.sectionNumber < 0) {
-                continue;
-            }
-            
-            NSUInteger index = [[self.albums objectAtIndex:a.sectionNumber] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-                if ([[(Album *)obj name] caseInsensitiveCompare:a.name] == NSOrderedDescending) {
-                    *stop = YES;
-                    return YES;
-                }
-                return NO;
-            }];
-            
-            if (index == NSNotFound) {
-                [[self.albums objectAtIndex:a.sectionNumber] addObject:a];
-            } else {
-                [[self.albums objectAtIndex:a.sectionNumber] insertObject:a atIndex:index];
-            }
-            
-            [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:a.sectionNumber] withRowAnimation:UITableViewRowAnimationNone];
-        }
-    }];
-}
-
--(void)getAllAlbumsForArtist:(NSString *)uid pageURL:(NSURLRequest *)nextPage withAlbumUris:(NSMutableArray *)uris{
-    NSError *error;
-    NSURLRequest *req ;
-    if (nextPage == nil) {
-        req = [SPTArtist createRequestForAlbumsByArtist:(NSURL *)uid ofType:SPTAlbumTypeAlbum|SPTAlbumTypeSingle withAccessToken:SpotifyAccessToken market:nil error:&error];
-    } else {
-        req = nextPage;
-    }
-    
-    if (uris == nil) {
-        uris = [NSMutableArray arrayWithCapacity:1];
-    }
-    
-    [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-        if (error != nil) {
-            if ([error code] == 1001) {
-                [self getAllAlbumsForArtist:uid pageURL:nextPage withAlbumUris:uris];
-            } else {
-                NSLog(@"Error retrieving album info for artist with id %@: %@", uid, error);
-            }
-            
-            return;
-        }
-        
-        SPTListPage *page = [SPTListPage  listPageFromData:data withResponse:response expectingPartialChildren:NO rootObjectKey:nil error:&error];
-        
-            if (error != nil) {
-                NSLog(@"Error parsing albums data for artist with id %@: %@", uid, error);
-                return;
-            }
-        
-            for (SPTAlbum *album in page.items) {
-                [uris addObject:(NSString *)album.uri];
-
-            }
-            
-        if (page.nextPageURL != nil) {
-            NSURLRequest *nextRequest = [page createRequestForNextPageWithAccessToken:SpotifyAccessToken error:&error];
-
-            if (error != nil) {
-                [self getAllAlbumsForArtist:uid pageURL:nextRequest withAlbumUris:uris];
-            } else {
-                NSLog(@"Error retrieving the next page. Failed to create request: %@", error);
-            }
+        if (index == NSNotFound) {
+            [[self.albums objectAtIndex:album.sectionNumber] addObject:album];
         } else {
-            if ([uris count] != page.totalListLength) {
-                NSLog(@"Error retrieving albums. %lu albums parsed does not equal %luld total albums in list.", (unsigned long)[uris count], page.totalListLength);
-            }
-            [self getDetailedAlbumInfo:uris withPage:nil];
+            [[self.albums objectAtIndex:album.sectionNumber] insertObject:album atIndex:index];
         }
-    }];
+        [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:album.sectionNumber] withRowAnimation:UITableViewRowAnimationNone];
+    } else {
+        // failure
+    }
 }
 
 - (NSMutableArray *)getAlbums {
     NSMutableArray *albums = [[NSMutableArray alloc] init];
     
-    Album *a1 = [[Album alloc] init];
-    a1.name = @"The Moon and Anarctica";
-    [albums addObject:a1];
-    
-    Album *a2 = [[Album alloc] init];
-    a2.name = @"Best of Beck";
-    [albums addObject:a2];
-    
-    Album *a3 = [[Album alloc] init];
-    a3.name = @"Asylum";
-    [albums addObject:a3];
     
     for (MPMediaItemCollection *collection in [[MPMediaQuery albumsQuery] collections]) {
-        a1 = [[Album alloc] init];
+        Album *a1 = [[Album alloc] init];
         a1.name = [[collection representativeItem] valueForProperty:MPMediaItemPropertyAlbumTitle];
+        a1.artist = [[collection representativeItem] valueForProperty:MPMediaItemPropertyAlbumArtist];
         //MPMediaItemPropertyReleaseDate
-        [albums addObject:a1];
+        //[albums addObject:a1];
     }
     
-    for (NSString *uid in artistIDs) {
-        [self getAllAlbumsForArtist:uid pageURL:nil withAlbumUris:nil];
+    while ([sharedManager.artistQueue count] > 0) {
+        Artist *artist = [sharedManager.artistQueue lastObject];
+        [sharedManager.artistQueue removeLastObject];
+        if (artist && ![artist.name isEqualToString:@""])
+            [sharedManager getAllAlbumsForArtist:artist.id pageURL:nil withAlbumUris:nil withController:self];
+        
     }
-    [artistIDs removeAllObjects];
-    
     return albums;
 }
 
@@ -263,11 +123,12 @@
     
     [super viewWillAppear:animated];
     
-    for (NSString *uid in artistIDs) {
-        [self getAllAlbumsForArtist:uid pageURL:nil withAlbumUris:nil];
+    while ([sharedManager.artistQueue count] > 0) {
+        Artist *artist = [sharedManager.artistQueue lastObject];
+        [sharedManager.artistQueue removeLastObject];
+        if (artist && ![artist.name isEqualToString:@""])
+            [sharedManager getAllAlbumsForArtist:artist.id pageURL:nil withAlbumUris:nil withController:self];  
     }
-    [artistIDs removeAllObjects];
-    
 }
 
 - (void)viewDidLoad {
@@ -278,6 +139,8 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    sharedManager = [SpotifyManager sharedManager];
     
     self.edgesForExtendedLayout = UIRectEdgeAll;
     self.tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, CGRectGetHeight(self.tabBarController.tabBar.frame), 0.0f);
@@ -395,6 +258,13 @@
     return cell;
 }
 
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    Album *a = [[self.albums objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    [self performSegueWithIdentifier:@"AlbumDrilldownSegue" sender:a];
+}
+
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     
     if ([[self.albums objectAtIndex:section] count] > 0) {
@@ -482,14 +352,18 @@
 }
 */
 
-/*
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([segue.identifier isEqualToString:@"AlbumDrilldownSegue"]) {
+        Album *a = (Album *)sender;
+        UINavigationController *navController = [segue destinationViewController];
+        AlbumDrilldownViewController *SITViewController = (AlbumDrilldownViewController *)([navController viewControllers][0]);
+        SITViewController.album = a;
+    }
 }
-*/
 
 @end

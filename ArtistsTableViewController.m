@@ -10,13 +10,17 @@
 #import <Spotify/Spotify.h>
 #import "ArtistsTableViewController.h"
 #import "AppDelegate.h"
+#import "ArtistDrilldownViewController.h"
 #import "customTableViewCell.h"
+#import "AlbumsTableViewController.h"
 
-@interface ArtistsTableViewController ()
-    @property NSMutableArray *artists;
+@interface ArtistsTableViewController () {
+    @private
+    SpotifyManager *sharedManager;
+    NSMutableArray *artists;
+}
 @end
 
-NSMutableArray *artistIDs;
 
 @implementation ArtistsTableViewController
 
@@ -31,12 +35,12 @@ NSMutableArray *artistIDs;
     
     
     /*The data source enumerates the array of model objects and sends sectionForObject:collationStringSelector: to the collation manager on each iteration. This method takes as arguments a model object and a property or method of the object that it uses in collation. Each call returns the index of the section array to which the model object belongs, and that value is assigned to the sectionNumber property.*/
-    UILocalizedIndexedCollation *col = [UILocalizedIndexedCollation currentCollation];
+    /*UILocalizedIndexedCollation *col = [UILocalizedIndexedCollation currentCollation];
     NSInteger sect = [col sectionForObject:a collationStringSelector:@selector(name)];
     a.sectionNumber = sect;
     
     //find correct place and add item
-    NSUInteger index = [[self.artists objectAtIndex:sect] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+    NSUInteger index = [[artists objectAtIndex:sect] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
         if ([[(Artist *)obj name] caseInsensitiveCompare:a.name] == NSOrderedDescending) {
             *stop = YES;
             return YES;
@@ -45,159 +49,113 @@ NSMutableArray *artistIDs;
     }];
     
     if (index == NSNotFound) {
-        [[self.artists objectAtIndex:sect] addObject:a];
+        [[artists objectAtIndex:sect] addObject:a];
     } else {
-        [[self.artists objectAtIndex:sect] insertObject:a atIndex:index];
-    }
-    [self retrieveArtistInfoFromSpotify:a];
-    [self.tableView reloadData];
+        [[artists objectAtIndex:sect] insertObject:a atIndex:index];
+    }*/
+    [sharedManager retrieveArtistInfoFromSpotify:a forController:self];
+    //[self.tableView reloadData];
 
 }
 
-- (void)retrieveArtistInfoFromSpotify:(Artist *)artist {
-    [SPTSearch performSearchWithQuery:artist.name queryType:SPTQueryTypeArtist accessToken:SpotifyAccessToken callback:^(NSError *error, id object) {
-        if (error != nil) {
-            NSLog(@"Error retrieving artist infor for %@: %@", artist.name, error);
-            [artistIDs addObject:nil];
+- (void) addAlbum:(Album *)album toArtist:(NSString *)artistName {
+    if (album == nil || artistName == nil || [artistName length] == 0)
+        return;
+    
+    
+    NSInteger sect = ((int)[[artistName uppercaseString] characterAtIndex:0]) - 65;
+    
+    //find correct place and add item
+    NSUInteger index = [[artists objectAtIndex:sect] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        if ([[(Artist *)obj name] caseInsensitiveCompare:artistName] == NSOrderedSame) {
+            *stop = YES;
+            return YES;
+        }
+        return NO;
+    }];
+    
+    
+    [[[artists objectAtIndex:sect] objectAtIndex:index] addToAlbums:album];
+}
+
+- (void) artistInfoCallback:(BOOL)success artist:(Artist *)artist error:(NSError *)error {
+    if (success) {
+         //find correct artist and update info
+        UILocalizedIndexedCollation *col = [UILocalizedIndexedCollation currentCollation];
+        NSInteger sect = [col sectionForObject:artist collationStringSelector:@selector(name)];
+        artist.sectionNumber = sect;
+        
+        //find correct place and add item
+        NSUInteger index = [[artists objectAtIndex:sect] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+            if ([[(Artist *)obj name] caseInsensitiveCompare:artist.name] == NSOrderedDescending) {
+                *stop = YES;
+                return YES;
+            }
+            return NO;
+        }];
+        
+        if (index == NSNotFound) {
+            [[artists objectAtIndex:sect] addObject:artist];
         } else {
-            SPTListPage *page = object;
-            
-            if ([page.items count] <= 0) {
-                NSLog(@"Error retrieving artist infor for %@: %@", artist.name, @"No results found");
-                [artistIDs addObject:nil];
-            } else {
-                
-                SPTPartialArtist *o = [page.items firstObject];
-                artist.name = o.name;
-                artist.id = (NSString *)o.uri ;
-                artist.href = o.sharingURL;
-                [artistIDs addObject:artist.id];
-                
-                // get detailed info for each artist
-                [self getAllArtistInfo:[NSMutableArray arrayWithObjects:artist.id, nil]];
-            }
+            [[artists objectAtIndex:sect] insertObject:artist atIndex:index];
         }
-    }];
+        
+        [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:[NSIndexPath indexPathForRow:index inSection:sect], nil] withRowAnimation:UITableViewRowAnimationNone];
+        
+    } else {
+        NSLog(@"Error retrieving artist info for %@: %@", artist.name, error);
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Not Found" message:[NSString stringWithFormat:@"No info found for artist \"%@\"", artist.name ] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
+        [[artists objectAtIndex:artist.sectionNumber ] removeObject:artist];
+        [self.tableView reloadData];
+    }
 }
 
 
-- (void)getAllArtistInfo:(NSMutableArray *)artistUIds {
-    [SPTArtist artistsWithURIs:artistUIds session:SpotifySession callback:^(NSError *error1, id object1) {
-        if (error1 != nil) {
-            NSLog(@"Error retrieving artist info for artists: %@", error1);
-            return;
-        }
-        
-        NSArray *page1 = object1;
-        
-        if ([page1 count] != [artistUIds count]) {
-            NSLog(@"Error retrieving artist info : %@", @"No results found");
-            return;
-        }
-        
-        for (SPTArtist *a in page1) {
-            Artist *a1 = nil;
-            NSString *fChar = [[a.name substringToIndex:1] uppercaseString];
-            //find correct artist and update info
-            NSUInteger section = [self.artists indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-                NSMutableArray *arr = (NSMutableArray *)obj;
-                if (arr && [arr count] > 0 && [[[[(Artist *)[arr firstObject] name] substringToIndex:1] uppercaseString] isEqualToString:fChar]) {
-                    *stop = YES;
-                    return YES;
-                }
-                return NO;
-            }];
-            
-            NSUInteger index;
-            if (section != NSNotFound) {
-                index = [[self.artists objectAtIndex:section] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-                    if ([[(Artist *)obj name] isEqualToString:a.name]) {
-                        *stop = YES;
-                        return YES;
-                    }
-                    return NO;
-                }];
-            } else {
-                index = NSNotFound;
-            }
-        
-            if (index != NSNotFound && a.uri != nil) {
-                a1 = [[self.artists objectAtIndex:section] objectAtIndex:index];
-                a1.image_url_large = a.largestImage.imageURL;
-                a1.image_url_small = a.smallestImage.imageURL;
-                a1.image_url_med = nil;
-                a1.popularity = a.popularity;
-                a1.followers = a.followerCount;
-                
-                //update in table
-                 NSIndexPath *iPath = [NSIndexPath indexPathForRow:index inSection:section];
-                [self.tableView beginUpdates];
-                [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:iPath, nil] withRowAnimation:UITableViewRowAnimationNone];
-                [self.tableView endUpdates];
-            
-            } else {
-                NSLog(@"Error updating artist info for %@: %@", a.name, @"Artist not found in table");
-            }
-        }
-    }];
-}
 
-- (void)loadInitialData:(NSInteger)count {
+- (void)loadInitialData:(NSMutableArray *)artistInitial {
     // Getting the uri for each artist
-    artistIDs = [[NSMutableArray alloc] init];
-    for (NSMutableArray *section in self.artists){
-        for (Artist *artist in section) {
-            [SPTSearch performSearchWithQuery:artist.name queryType:SPTQueryTypeArtist accessToken:SpotifyAccessToken callback:^(NSError *error, id object) {
-                if (error != nil) {
-                    NSLog(@"Error retrieving artist infor for %@: %@", artist.name, error);
-                    [artistIDs addObject:nil];
-                } else {
-                    SPTListPage *page = object;
-                    
-                    if ([page.items count] <= 0) {
-                        NSLog(@"Error retrieving artist infor for %@: %@", artist.name, @"No results found");
-                        [artistIDs addObject:nil];
-                    } else {
-                        
-                        SPTPartialArtist *o = [page.items firstObject];
-                        artist.name = o.name;
-                        artist.id = (NSString *)o.uri ;
-                        artist.href = o.sharingURL;
-                        
-                        // get detailed info for each artist
-                        [artistIDs addObject:artist.id];
-                        if (artistIDs && [artistIDs count] == count) {
-                            [self getAllArtistInfo:artistIDs];
-                        }
-                    }
-                }
-            }];
-        }
+    for (Artist *artist in artistInitial) {
+        [sharedManager retrieveArtistInfoFromSpotify:artist forController:self];
     }
 }
 
 - (NSMutableArray *)getArtists {
-    NSMutableArray *artists = [[NSMutableArray alloc] init];
+    NSMutableArray *ret = [[NSMutableArray alloc] init];
     
     Artist *a1 = [[Artist alloc] init];
     a1.name = @"Modest Mouse";
-    [artists addObject:a1];
+    [ret addObject:a1];
     
     Artist *a2 = [[Artist alloc] init];
     a2.name = @"Ninja Sex Party";
-    [artists addObject:a2];
+    [ret addObject:a2];
     
     Artist *a3 = [[Artist alloc] init];
     a3.name = @"Disturbed";
-    [artists addObject:a3];
+    [ret addObject:a3];
     
     for (MPMediaItemCollection *collection in [[MPMediaQuery artistsQuery] collections]) {
         a1 = [[Artist alloc] init];
         a1.name = [[collection representativeItem] valueForProperty:MPMediaItemPropertyArtist];
-        [artists addObject:a1];
+        //[ret addObject:a1];
     }
     
-    return artists;
+    return ret;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    Artist *a = [[artists objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    [self performSegueWithIdentifier:@"ArtistDrilldownSegue" sender:a];
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    
+    [super viewWillAppear:animated];
+    
 }
 
 - (void)viewDidLoad {
@@ -209,6 +167,8 @@ NSMutableArray *artistIDs;
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
+    sharedManager = [SpotifyManager sharedManager];
+    
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
     self.edgesForExtendedLayout = UIRectEdgeAll;
@@ -216,7 +176,6 @@ NSMutableArray *artistIDs;
     self.tableView.rowHeight = 80.0f;
     
     NSMutableArray *artistsTemp = [self getArtists];
-    NSInteger count = [artistsTemp count];
     
     /*The data source enumerates the array of model objects and sends sectionForObject:collationStringSelector: to the collation manager on each iteration. This method takes as arguments a model object and a property or method of the object that it uses in collation. Each call returns the index of the section array to which the model object belongs, and that value is assigned to the sectionNumber property.*/
     UILocalizedIndexedCollation *col = [UILocalizedIndexedCollation currentCollation];
@@ -233,19 +192,19 @@ NSMutableArray *artistIDs;
         [sectionArrays addObject:sectionArray];
     }
     // (3)
-    for (Artist *a in artistsTemp) {
-        [(NSMutableArray *)[sectionArrays objectAtIndex:a.sectionNumber] addObject:a];
-    }
+    //for (Artist *a in artistsTemp) {
+    //   [(NSMutableArray *)[sectionArrays objectAtIndex:a.sectionNumber] addObject:a];
+    //}
     // (4)
-    self.artists = [NSMutableArray arrayWithCapacity:1];
+    artists = [NSMutableArray arrayWithCapacity:1];
     for (NSMutableArray *sectionArray in sectionArrays) {
         NSMutableArray *sortedSection = [NSMutableArray arrayWithArray:[col sortedArrayFromArray:sectionArray
                                             collationStringSelector:@selector(name)]];
-        [self.artists addObject:sortedSection];
+        [artists addObject:sortedSection];
     }
     
     // start retrieving data for artists
-    [self loadInitialData:count];
+    [self loadInitialData:artistsTemp];
     
 }
 
@@ -254,7 +213,7 @@ NSMutableArray *artistIDs;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    if ([[self.artists objectAtIndex:section] count] > 0) {
+    if ([[artists objectAtIndex:section] count] > 0) {
         return [[[UILocalizedIndexedCollation currentCollation] sectionTitles] objectAtIndex:section];
     }
     return nil;
@@ -278,7 +237,7 @@ NSMutableArray *artistIDs;
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         //add code here for when you hit delete
-        [[self.artists objectAtIndex:indexPath.section] removeObjectAtIndex:indexPath.row];
+        [[artists objectAtIndex:indexPath.section] removeObjectAtIndex:indexPath.row];
         [self.tableView reloadData];
     }
 }
@@ -292,12 +251,12 @@ NSMutableArray *artistIDs;
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     // Return the number of sections.
-    return [self.artists count];
+    return [artists count];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     // Return the number of rows in the section.
-    return [[self.artists objectAtIndex:section] count];
+    return [[artists objectAtIndex:section] count];
 }
 
 
@@ -311,7 +270,7 @@ NSMutableArray *artistIDs;
     
     // Configure the cell...
     customTableViewCell *oCell = (customTableViewCell *)cell;
-    Artist *a = [[self.artists objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    Artist *a = [[artists objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     if (a.id == nil || a.image_url_small == nil) {
         oCell.titleLabel.text = a.name;
         oCell.subTitleLabel.text = @"Error retrieving data";
@@ -340,7 +299,7 @@ NSMutableArray *artistIDs;
 
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     
-    if ([[self.artists objectAtIndex:section] count] > 0) {
+    if ([[artists objectAtIndex:section] count] > 0) {
         UIView *customTitleView = [ [UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 30)];
         customTitleView.backgroundColor = [UIColor whiteColor];
         UILabel *titleLabel = [ [UILabel alloc] initWithFrame:CGRectMake(10, 0, 300, 30)];
@@ -362,7 +321,7 @@ NSMutableArray *artistIDs;
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    if ([[self.artists objectAtIndex:section] count] > 0) {
+    if ([[artists objectAtIndex:section] count] > 0) {
         return 30;
     } else {
         return 0;
@@ -384,14 +343,20 @@ NSMutableArray *artistIDs;
 }
 */
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if ([segue.identifier isEqualToString:@"ArtistDrilldownSegue"]) {
+        Artist *a = (Artist *)sender;
+        UINavigationController *navController = [segue destinationViewController];
+        ArtistDrilldownViewController *SITViewController = (ArtistDrilldownViewController *)([navController viewControllers][0]);
+        SITViewController.artist = a;
+    }
 }
-*/
+
 
 @end

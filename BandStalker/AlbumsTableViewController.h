@@ -11,4 +11,6 @@
 
 @interface AlbumsTableViewController : UITableViewController
 
+- (void) albumInfoCallback:(BOOL)success album:(Album *)album error:(NSError *)error;
+
 @end

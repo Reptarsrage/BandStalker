@@ -16,14 +16,20 @@
     if (!_albums )
         _albums = [[NSMutableArray alloc] init];
     
-    [_albums addObject:album];
-    
-    _albums = (NSMutableArray *)[_albums sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
-        NSDate *first = ((Album*)a).releaseDate;
-        NSDate *second = ((Album*)b).releaseDate;
-        return [first compare:second];
+    //find correct place and add item
+    NSUInteger index = [_albums  indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        if ([(Album *)obj releaseDate] > album.releaseDate) {
+            *stop = YES;
+            return YES;
+        }
+        return NO;
     }];
     
+    if (index == NSNotFound) {
+        [_albums addObject:album];
+    } else {
+        [_albums insertObject:album atIndex:index];
+    }
 }
 
 - (void)removeFromAlbums: (Album *)album {
