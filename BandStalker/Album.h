@@ -20,6 +20,6 @@
 @property (nonatomic, retain)NSURL *image_url_large;
 @property (nonatomic, retain)NSURL *href;
 @property (nonatomic, retain)NSString *artist;
-
+@property NSInteger sectionNumber;
 
 @end

@@ -37,7 +37,7 @@
     
     // add the body
     NSData *body = [@"grant_type=client_credentials" dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *body_length = [NSString stringWithFormat:@"%d", [body length]];
+    NSString *body_length = [NSString stringWithFormat:@"%lu", (unsigned long)[body length]];
     [request setValue:body_length forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:body];
     

@@ -12,6 +12,7 @@
 
 @synthesize titleLabel = _titleLabel;
 @synthesize subTitleLabel = _subTitleLabel;
+@synthesize subTitleLabel2 = _subTitleLabel2;
 @synthesize thumbImageView = _thumbImageView;
 
 - (void)awakeFromNib {

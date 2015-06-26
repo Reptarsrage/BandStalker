@@ -14,8 +14,9 @@
 
 @interface ArtistsTableViewController ()
     @property NSMutableArray *artists;
-    @property (nonatomic, strong) SPTSession *session;
 @end
+
+NSMutableArray *artistIDs;
 
 @implementation ArtistsTableViewController
 
@@ -27,6 +28,7 @@
     if (a == nil) {
         return;
     }
+    
     
     /*The data source enumerates the array of model objects and sends sectionForObject:collationStringSelector: to the collation manager on each iteration. This method takes as arguments a model object and a property or method of the object that it uses in collation. Each call returns the index of the section array to which the model object belongs, and that value is assigned to the sectionNumber property.*/
     UILocalizedIndexedCollation *col = [UILocalizedIndexedCollation currentCollation];
@@ -56,17 +58,20 @@
     [SPTSearch performSearchWithQuery:artist.name queryType:SPTQueryTypeArtist accessToken:SpotifyAccessToken callback:^(NSError *error, id object) {
         if (error != nil) {
             NSLog(@"Error retrieving artist infor for %@: %@", artist.name, error);
+            [artistIDs addObject:nil];
         } else {
             SPTListPage *page = object;
             
             if ([page.items count] <= 0) {
                 NSLog(@"Error retrieving artist infor for %@: %@", artist.name, @"No results found");
+                [artistIDs addObject:nil];
             } else {
                 
                 SPTPartialArtist *o = [page.items firstObject];
                 artist.name = o.name;
                 artist.id = (NSString *)o.uri ;
                 artist.href = o.sharingURL;
+                [artistIDs addObject:artist.id];
                 
                 // get detailed info for each artist
                 [self getAllArtistInfo:[NSMutableArray arrayWithObjects:artist.id, nil]];
@@ -76,8 +81,8 @@
 }
 
 
-- (void)getAllArtistInfo:(NSMutableArray *)artistIds {
-    [SPTArtist artistsWithURIs:artistIds session:SpotifySession callback:^(NSError *error1, id object1) {
+- (void)getAllArtistInfo:(NSMutableArray *)artistUIds {
+    [SPTArtist artistsWithURIs:artistUIds session:SpotifySession callback:^(NSError *error1, id object1) {
         if (error1 != nil) {
             NSLog(@"Error retrieving artist info for artists: %@", error1);
             return;
@@ -85,7 +90,7 @@
         
         NSArray *page1 = object1;
         
-        if ([page1 count] != [artistIds count]) {
+        if ([page1 count] != [artistUIds count]) {
             NSLog(@"Error retrieving artist info : %@", @"No results found");
             return;
         }
@@ -139,19 +144,19 @@
 
 - (void)loadInitialData:(NSInteger)count {
     // Getting the uri for each artist
-    NSMutableArray *artistIds = [[NSMutableArray alloc] init];
+    artistIDs = [[NSMutableArray alloc] init];
     for (NSMutableArray *section in self.artists){
         for (Artist *artist in section) {
             [SPTSearch performSearchWithQuery:artist.name queryType:SPTQueryTypeArtist accessToken:SpotifyAccessToken callback:^(NSError *error, id object) {
                 if (error != nil) {
                     NSLog(@"Error retrieving artist infor for %@: %@", artist.name, error);
-                    [artistIds addObject:nil];
+                    [artistIDs addObject:nil];
                 } else {
                     SPTListPage *page = object;
                     
                     if ([page.items count] <= 0) {
                         NSLog(@"Error retrieving artist infor for %@: %@", artist.name, @"No results found");
-                        [artistIds addObject:nil];
+                        [artistIDs addObject:nil];
                     } else {
                         
                         SPTPartialArtist *o = [page.items firstObject];
@@ -160,9 +165,9 @@
                         artist.href = o.sharingURL;
                         
                         // get detailed info for each artist
-                        [artistIds addObject:artist.id];
-                        if (artistIds && [artistIds count] == count) {
-                            [self getAllArtistInfo:artistIds];
+                        [artistIDs addObject:artist.id];
+                        if (artistIDs && [artistIDs count] == count) {
+                            [self getAllArtistInfo:artistIDs];
                         }
                     }
                 }
@@ -179,7 +184,7 @@
     [artists addObject:a1];
     
     Artist *a2 = [[Artist alloc] init];
-    a2.name = @"Beck";
+    a2.name = @"Ninja Sex Party";
     [artists addObject:a2];
     
     Artist *a3 = [[Artist alloc] init];
@@ -319,7 +324,8 @@
              oCell.thumbImageView.image = [UIImage imageWithData:data];
         }];
 
-        oCell.subTitleLabel.text = [NSString stringWithFormat:@"id: %@ popularity: %f followers: %ld", a.id, a.popularity, a.followers];
+        oCell.subTitleLabel.text = [NSString stringWithFormat:@"popularity: %.0f", a.popularity];
+        oCell.subTitleLabel2.text = [NSString stringWithFormat:@"followers: %ld", a.followers];
         
     }
     return cell;

@@ -13,6 +13,8 @@
 
 @interface ArtistsTableViewController : UITableViewController
 
+extern NSMutableArray *artistIDs;
+
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue;
 
 

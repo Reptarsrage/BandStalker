@@ -12,5 +12,4 @@
 
 @interface AddArtistViewController : UIViewController <UITextFieldDelegate>
 @property Artist *artist;
-
 @end
