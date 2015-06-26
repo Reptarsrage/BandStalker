@@ -23,6 +23,7 @@
 @property (nonatomic, retain)NSURL *href;
 @property (nonatomic, retain, readonly) NSMutableArray *albums;
 @property NSInteger sectionNumber;
+@property (nonatomic, retain)NSData *cached_image;
 
 - (void)addToAlbums: (Album *)album;
 

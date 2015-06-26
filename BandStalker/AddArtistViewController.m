@@ -11,6 +11,7 @@
 @interface AddArtistViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *text_field;
 @property (weak, nonatomic) IBOutlet UIButton *go_button;
+@property (weak, nonatomic) IBOutlet UIButton *cancel_button;
 
 @end
 
@@ -42,10 +43,13 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    
-    if (self.text_field.text != nil) {
+    if ([(UIBarItem *)sender tag] == 1) { // Cancel
+        self.artist = nil;
+    } else if (self.text_field.text != nil && ![self.text_field.text isEqualToString:@""]) {
         self.artist = [[Artist alloc] init];
         self.artist.name = self.text_field.text;
+    } else {
+        self.artist = nil;
     }
 }
 

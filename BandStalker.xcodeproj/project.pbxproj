@@ -23,6 +23,7 @@
 		845998421B1FDBA300B0B659 /* Spotify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 845998411B1FDBA300B0B659 /* Spotify.framework */; };
 		8499449C1B2032080080733F /* customTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8499449B1B2032080080733F /* customTableViewCell.m */; };
 		8499449E1B3B570E0080733F /* profile_default.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8499449D1B3B570E0080733F /* profile_default.jpg */; };
+		849944A11B3CEBD10080733F /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 849944A01B3CEBD10080733F /* Track.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,8 @@
 		8499449A1B2032080080733F /* customTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = customTableViewCell.h; sourceTree = "<group>"; };
 		8499449B1B2032080080733F /* customTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = customTableViewCell.m; sourceTree = "<group>"; };
 		8499449D1B3B570E0080733F /* profile_default.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = profile_default.jpg; sourceTree = "<group>"; };
+		8499449F1B3CEBD10080733F /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
+		849944A01B3CEBD10080733F /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +126,8 @@
 				8459983F1B1FB07D00B0B659 /* AddArtist.m */,
 				845998381B1FA5E400B0B659 /* AlbumsTableViewController.h */,
 				845998391B1FA5E400B0B659 /* AlbumsTableViewController.m */,
+				8499449F1B3CEBD10080733F /* Track.h */,
+				849944A01B3CEBD10080733F /* Track.m */,
 				845998321B1F93AF00B0B659 /* Artist.h */,
 				845998351B1F98F800B0B659 /* Album.h */,
 				845998361B1F98F800B0B659 /* Album.m */,
@@ -265,6 +270,7 @@
 				8499449C1B2032080080733F /* customTableViewCell.m in Sources */,
 				8459983A1B1FA5E400B0B659 /* AlbumsTableViewController.m in Sources */,
 				845998311B1F914100B0B659 /* ArtistsTableViewController.m in Sources */,
+				849944A11B3CEBD10080733F /* Track.m in Sources */,
 				845998121B1F846000B0B659 /* ViewController.m in Sources */,
 				8459983D1B1FAC1C00B0B659 /* AddArtistViewController.m in Sources */,
 				845998401B1FB07D00B0B659 /* AddArtist.m in Sources */,

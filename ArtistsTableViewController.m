@@ -321,7 +321,14 @@ NSMutableArray *artistIDs;
     } else {
         oCell.titleLabel.text = a.name;
         [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:a.image_url_large] queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-             oCell.thumbImageView.image = [UIImage imageWithData:data];
+            
+            if (connectionError == nil) {
+                a.cached_image = data;
+                oCell.thumbImageView.image = [UIImage imageWithData:data];
+            } else {
+                NSLog(@"Error retrieving album art for album %@: %@", a.name, connectionError);
+                oCell.thumbImageView.image = [UIImage imageNamed:@"profile_default.jpg"];
+            }
         }];
 
         oCell.subTitleLabel.text = [NSString stringWithFormat:@"popularity: %.0f", a.popularity];

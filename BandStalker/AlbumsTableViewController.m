@@ -41,7 +41,6 @@
             return;
         }
         
-        //SPTListPage *page = [SPTListPage  listPageFromData:data withResponse:response expectingPartialChildren:NO rootObjectKey:nil error:&error];
             NSArray *json = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
             if (error != nil) {
                 NSLog(@"Error parsing JSON data for albums.");
@@ -67,14 +66,45 @@
             a.image_url_small = album.smallestCover.imageURL;
             a.image_url_med = nil;
             a.href = album.sharingURL;
+            a.popularity = album.popularity;
             
-            //remove object if it exists in the unclassified section
-            /*for (Album *aOld in [self.albums objectAtIndex:[self getAlbumSection:nil]]) {
-                if ([aOld.id isEqualToString:a.id]) {
-                    [[self.albums objectAtIndex:[self getAlbumSection:nil]] removeObject:aOld];
+            switch (album.type) {
+                case SPTAlbumTypeAlbum:
+                    a.type = @"Full Album";
                     break;
-                }
-            }*/
+                case SPTAlbumTypeSingle:
+                    a.type = @"Single";
+                    break;
+                case SPTAlbumTypeCompilation:
+                    a.type = @"Compilation";
+                    break;
+                case SPTAlbumTypeAppearsOn:
+                    a.type = @"Appears on";
+                    break;
+                default:
+                    break;
+            }
+
+            NSInteger length = [(SPTListPage *)album.firstTrackPage totalListLength];
+            for (int i=0; i < length; i++) {
+                Track *t = [[Track alloc] init];
+                t.trackNumber = i + 1;
+                t.name = @"Unkown";
+                [a addToTracks:t];
+            }
+            
+            for (SPTPartialTrack *track in [(SPTListPage *)album.firstTrackPage items]) {
+                Track *t = [a.tracks objectAtIndex:track.trackNumber - 1];
+                t.id = (NSString *)track.uri;
+                t.discNumber = track.discNumber;
+                t.href = track.sharingURL;
+                t.preview = track.previewURL;
+                t.duration = track.duration;
+                t.flaggedExplicit = track.flaggedExplicit;
+                t.name = track.name;
+            }
+            
+            a.nextTrackPageUrl = [(SPTListPage *)album.firstTrackPage nextPageURL];
             
             // find correct place and add object
             if (a.sectionNumber < 0) {
@@ -97,17 +127,6 @@
             
             [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:a.sectionNumber] withRowAnimation:UITableViewRowAnimationNone];
         }
-        
-        /*if (page.nextPageURL != nil) {
-            NSURLRequest *nextRequest = [page createRequestForNextPageWithAccessToken:SpotifyAccessToken error:&error];
-            
-            if (error != nil) {
-                [self getDetailedAlbumInfo:uris withPage:nextRequest];
-            } else {
-                NSLog(@"Error retrieving the next page. Failed to create request: %@", error);
-            }
-        }*/
-        
     }];
 }
 
@@ -343,16 +362,22 @@
     customTableViewCell *oCell = (customTableViewCell *)cell;
     Album *a = [[self.albums objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     if (a.id == nil || a.image_url_small == nil) {
-        oCell.titleLabel.text = a.name;
+        oCell.titleLabel.text = [NSString stringWithFormat:@"%@ [Unkonwn type]", a.name];
         oCell.subTitleLabel.text = @"Error retrieving data";
         oCell.subTitleLabel2.text = @"";
         oCell.thumbImageView.image = [UIImage imageNamed:@"profile_default.jpg"];
         
         
     } else {
-        oCell.titleLabel.text = a.name;
+        oCell.titleLabel.text = [NSString stringWithFormat:@"%@ [%@]", a.name, a.type];
         [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:a.image_url_large] queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-            oCell.thumbImageView.image = [UIImage imageWithData:data];
+            if (connectionError == nil) {
+                a.cached_image = data;
+                oCell.thumbImageView.image = [UIImage imageWithData:data];
+            } else {
+                NSLog(@"Error retrieving album art for album %@: %@", a.name, connectionError);
+                oCell.thumbImageView.image = [UIImage imageNamed:@"profile_default.jpg"];
+            }
         }];
     
         oCell.subTitleLabel.text = [NSString stringWithFormat:@"Artist: %.@", a.artist];
