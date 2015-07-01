@@ -13,18 +13,18 @@
 #import "customTableViewCell.h"
 #import "ArtistsTableViewController.h"
 #import "AlbumsTableViewController.h"
-#import "AlbumDrilldownViewController.h"
+#import "AlbumDrilldownTableViewController.h"
 
-@interface AlbumsTableViewController ()
+@interface AlbumsTableViewController () {
+    @private SpotifyManager *sharedManager;
+}
 @property NSMutableArray *albums;
 @end
 
-SpotifyManager *sharedManager;
-
 @implementation AlbumsTableViewController
 
-- (void) albumInfoCallback:(BOOL)success album:(Album *)album error:(NSError *)error {
-    if (success) {
+- (void) albumInfoCallback:(Album *)album error:(NSError *)error {
+    if (error == nil) {
         // find correct place and add object
         album.sectionNumber = [self getAlbumSection:album.releaseDate];
         
@@ -33,7 +33,7 @@ SpotifyManager *sharedManager;
         }
         
         NSUInteger index = [[self.albums objectAtIndex:album.sectionNumber] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-            if ([[(Album *)obj name] caseInsensitiveCompare:album.name] == NSOrderedDescending) {
+            if ([[(Album *)obj releaseDate] compare:album.releaseDate] == NSOrderedAscending) {
                 *stop = YES;
                 return YES;
             }
@@ -46,6 +46,11 @@ SpotifyManager *sharedManager;
             [[self.albums objectAtIndex:album.sectionNumber] insertObject:album atIndex:index];
         }
         [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:album.sectionNumber] withRowAnimation:UITableViewRowAnimationNone];
+        
+        [sharedManager getAllTracksForAlbum:album withCallback:^(Album *album, NSError *error) {
+            [self albumInfoCallback:album error:error];
+        }];
+        
     } else {
         // failure
     }
@@ -67,7 +72,10 @@ SpotifyManager *sharedManager;
         Artist *artist = [sharedManager.artistQueue lastObject];
         [sharedManager.artistQueue removeLastObject];
         if (artist && ![artist.name isEqualToString:@""])
-            [sharedManager getAllAlbumsForArtist:artist.id pageURL:nil withAlbumUris:nil withController:self];
+            [sharedManager getAllAlbumsForArtist:artist.id pageURL:nil withAlbumUris:nil withCallback:^(Album *album, NSError *error) {
+                [self albumInfoCallback:album error:error];
+            }];
+        
         
     }
     return albums;
@@ -127,7 +135,9 @@ SpotifyManager *sharedManager;
         Artist *artist = [sharedManager.artistQueue lastObject];
         [sharedManager.artistQueue removeLastObject];
         if (artist && ![artist.name isEqualToString:@""])
-            [sharedManager getAllAlbumsForArtist:artist.id pageURL:nil withAlbumUris:nil withController:self];  
+            [sharedManager getAllAlbumsForArtist:artist.id pageURL:nil withAlbumUris:nil withCallback:^(Album *album, NSError *error) {
+                [self albumInfoCallback:album error:error];
+            }];
     }
 }
 
@@ -361,7 +371,7 @@ SpotifyManager *sharedManager;
     if ([segue.identifier isEqualToString:@"AlbumDrilldownSegue"]) {
         Album *a = (Album *)sender;
         UINavigationController *navController = [segue destinationViewController];
-        AlbumDrilldownViewController *SITViewController = (AlbumDrilldownViewController *)([navController viewControllers][0]);
+        AlbumDrilldownTableViewController *SITViewController = (AlbumDrilldownTableViewController *)([navController viewControllers][0]);
         SITViewController.album = a;
     }
 }

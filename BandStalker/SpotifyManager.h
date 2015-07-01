@@ -13,6 +13,9 @@
 #import "Track.h"
 #import "ArtistsTableViewController.h"
 #import "AlbumsTableViewController.h"
+#import "ArtistDrilldownTableViewController.h"
+
+typedef void (^SpotifyAlbumInfoCallback) (Album *album, NSError *error);
 
 @interface SpotifyManager : NSObject  {
     long expires;
@@ -28,7 +31,9 @@
 
 - (BOOL)login;
 - (void)retrieveArtistInfoFromSpotify:(Artist *)artist forController:(ArtistsTableViewController *)controller;
--(void)getAllAlbumsForArtist:(NSString *)uid pageURL:(NSURLRequest *)nextPage withAlbumUris:(NSMutableArray *)uris withController:(AlbumsTableViewController *)controller;
+-(void)getAllAlbumsForArtist:(NSString *)uid pageURL:(NSURLRequest *)nextPage withAlbumUris:(NSMutableArray *)uris withCallback:(SpotifyAlbumInfoCallback)callback;
+-(void)getAllTracksForAlbum:(Album *)album withCallback:(SpotifyAlbumInfoCallback)callback;
+
 
 + (id)sharedManager;
 

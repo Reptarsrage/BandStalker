@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8419383B1B44ACD7004A76BF /* AlbumDrilldownTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8419383A1B44ACD7004A76BF /* AlbumDrilldownTableViewController.m */; };
 		8459980C1B1F846000B0B659 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8459980B1B1F846000B0B659 /* main.m */; };
 		8459980F1B1F846000B0B659 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8459980E1B1F846000B0B659 /* AppDelegate.m */; };
 		845998151B1F846000B0B659 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 845998131B1F846000B0B659 /* Main.storyboard */; };
@@ -23,9 +24,9 @@
 		8499449C1B2032080080733F /* customTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8499449B1B2032080080733F /* customTableViewCell.m */; };
 		8499449E1B3B570E0080733F /* profile_default.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8499449D1B3B570E0080733F /* profile_default.jpg */; };
 		849944A11B3CEBD10080733F /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 849944A01B3CEBD10080733F /* Track.m */; };
-		849944A41B3D0B690080733F /* ArtistDrilldownViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 849944A31B3D0B690080733F /* ArtistDrilldownViewController.m */; };
 		849944A71B3D35E80080733F /* SpotifyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 849944A61B3D35E80080733F /* SpotifyManager.m */; };
-		849944AA1B3D5FCB0080733F /* AlbumDrilldownViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 849944A91B3D5FCB0080733F /* AlbumDrilldownViewController.m */; };
+		849944AD1B3D66D50080733F /* ArtistDrilldownTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 849944AC1B3D66D50080733F /* ArtistDrilldownTableViewController.m */; };
+		849944B01B3D6BAA0080733F /* TrackTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 849944AF1B3D6BAA0080733F /* TrackTableViewCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +40,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		841938391B44ACD6004A76BF /* AlbumDrilldownTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlbumDrilldownTableViewController.h; sourceTree = "<group>"; };
+		8419383A1B44ACD7004A76BF /* AlbumDrilldownTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AlbumDrilldownTableViewController.m; sourceTree = "<group>"; };
 		845998061B1F846000B0B659 /* BandStalker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BandStalker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8459980A1B1F846000B0B659 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8459980B1B1F846000B0B659 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -68,12 +71,12 @@
 		8499449D1B3B570E0080733F /* profile_default.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = profile_default.jpg; sourceTree = "<group>"; };
 		8499449F1B3CEBD10080733F /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
 		849944A01B3CEBD10080733F /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
-		849944A21B3D0B690080733F /* ArtistDrilldownViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArtistDrilldownViewController.h; sourceTree = "<group>"; };
-		849944A31B3D0B690080733F /* ArtistDrilldownViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArtistDrilldownViewController.m; sourceTree = "<group>"; };
 		849944A51B3D35E70080733F /* SpotifyManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpotifyManager.h; sourceTree = "<group>"; };
 		849944A61B3D35E80080733F /* SpotifyManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpotifyManager.m; sourceTree = "<group>"; };
-		849944A81B3D5FCB0080733F /* AlbumDrilldownViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlbumDrilldownViewController.h; sourceTree = "<group>"; };
-		849944A91B3D5FCB0080733F /* AlbumDrilldownViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AlbumDrilldownViewController.m; sourceTree = "<group>"; };
+		849944AB1B3D66D50080733F /* ArtistDrilldownTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArtistDrilldownTableViewController.h; sourceTree = "<group>"; };
+		849944AC1B3D66D50080733F /* ArtistDrilldownTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArtistDrilldownTableViewController.m; sourceTree = "<group>"; };
+		849944AE1B3D6BAA0080733F /* TrackTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrackTableViewCell.h; sourceTree = "<group>"; };
+		849944AF1B3D6BAA0080733F /* TrackTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackTableViewCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,10 +127,12 @@
 				8459980D1B1F846000B0B659 /* AppDelegate.h */,
 				8459980E1B1F846000B0B659 /* AppDelegate.m */,
 				845998131B1F846000B0B659 /* Main.storyboard */,
-				849944A81B3D5FCB0080733F /* AlbumDrilldownViewController.h */,
-				849944A91B3D5FCB0080733F /* AlbumDrilldownViewController.m */,
-				849944A21B3D0B690080733F /* ArtistDrilldownViewController.h */,
-				849944A31B3D0B690080733F /* ArtistDrilldownViewController.m */,
+				849944AE1B3D6BAA0080733F /* TrackTableViewCell.h */,
+				849944AF1B3D6BAA0080733F /* TrackTableViewCell.m */,
+				849944AB1B3D66D50080733F /* ArtistDrilldownTableViewController.h */,
+				849944AC1B3D66D50080733F /* ArtistDrilldownTableViewController.m */,
+				841938391B44ACD6004A76BF /* AlbumDrilldownTableViewController.h */,
+				8419383A1B44ACD7004A76BF /* AlbumDrilldownTableViewController.m */,
 				8499449A1B2032080080733F /* customTableViewCell.h */,
 				8499449B1B2032080080733F /* customTableViewCell.m */,
 				8459983E1B1FB07D00B0B659 /* AddArtist.h */,
@@ -278,18 +283,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				8499449C1B2032080080733F /* customTableViewCell.m in Sources */,
+				849944B01B3D6BAA0080733F /* TrackTableViewCell.m in Sources */,
 				8459983A1B1FA5E400B0B659 /* AlbumsTableViewController.m in Sources */,
+				8419383B1B44ACD7004A76BF /* AlbumDrilldownTableViewController.m in Sources */,
 				845998311B1F914100B0B659 /* ArtistsTableViewController.m in Sources */,
-				849944AA1B3D5FCB0080733F /* AlbumDrilldownViewController.m in Sources */,
 				849944A11B3CEBD10080733F /* Track.m in Sources */,
 				8459983D1B1FAC1C00B0B659 /* AddArtistViewController.m in Sources */,
 				845998401B1FB07D00B0B659 /* AddArtist.m in Sources */,
 				8459980F1B1F846000B0B659 /* AppDelegate.m in Sources */,
+				849944AD1B3D66D50080733F /* ArtistDrilldownTableViewController.m in Sources */,
 				845998371B1F98F800B0B659 /* Album.m in Sources */,
 				8459980C1B1F846000B0B659 /* main.m in Sources */,
 				849944A71B3D35E80080733F /* SpotifyManager.m in Sources */,
 				845998341B1F93AF00B0B659 /* Artist.m in Sources */,
-				849944A41B3D0B690080733F /* ArtistDrilldownViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

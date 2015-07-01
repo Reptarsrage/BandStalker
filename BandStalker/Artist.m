@@ -18,7 +18,7 @@
     
     //find correct place and add item
     NSUInteger index = [_albums  indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([(Album *)obj releaseDate] > album.releaseDate) {
+        if ([[(Album *)obj releaseDate] compare:album.releaseDate] == NSOrderedAscending) {
             *stop = YES;
             return YES;
         }

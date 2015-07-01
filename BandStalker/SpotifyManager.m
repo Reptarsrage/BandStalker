@@ -11,7 +11,7 @@
 @interface SpotifyManager()
 //private methods
 - (void)getAllArtistInfo:(NSMutableArray *)artistUIds forController:(ArtistsTableViewController *)controller;
--(void)getDetailedAlbumInfo:(NSMutableArray *)uris withPage:(NSURLRequest *)nextPage withController:(AlbumsTableViewController *)controller;
+-(void)getDetailedAlbumInfo:(NSMutableArray *)uris withPage:(NSURLRequest *)nextPage withCallback:(SpotifyAlbumInfoCallback)callback;
 @end
 
 @implementation SpotifyManager {
@@ -167,7 +167,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 }
 
 
--(void)getAllAlbumsForArtist:(NSString *)uid pageURL:(NSURLRequest *)nextPage withAlbumUris:(NSMutableArray *)uris withController:(AlbumsTableViewController *)controller {
+-(void)getAllAlbumsForArtist:(NSString *)uid pageURL:(NSURLRequest *)nextPage withAlbumUris:(NSMutableArray *)uris withCallback:(SpotifyAlbumInfoCallback)callback {
     NSError *error = nil;
     NSURLRequest *req ;
     if (nextPage == nil) {
@@ -183,7 +183,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
         if (error != nil) {
             if ([error code] == 1001) { // TIMEOUT
-                [self getAllAlbumsForArtist:uid pageURL:nextPage withAlbumUris:uris withController:controller];
+                [self getAllAlbumsForArtist:uid pageURL:nextPage withAlbumUris:uris withCallback:callback];
             } else {
                 NSLog(@"Error retrieving album info for artist with id %@: %@", uid, error);
             }
@@ -207,7 +207,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             NSURLRequest *nextRequest = [page createRequestForNextPageWithAccessToken:SpotifyAccessToken error:&error];
             
             if (error != nil || error == NULL) {
-                [self getAllAlbumsForArtist:uid pageURL:nextRequest withAlbumUris:uris withController:controller];
+                [self getAllAlbumsForArtist:uid pageURL:nextRequest withAlbumUris:uris withCallback:callback];
             } else {
                 NSLog(@"Error retrieving the next page. Failed to create request: %@", error);
             }
@@ -215,13 +215,13 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             if ([uris count] != page.totalListLength) {
                 NSLog(@"Error retrieving albums. %lu albums parsed does not equal %luld total albums in list.", (unsigned long)[uris count], page.totalListLength);
             }
-            [self getDetailedAlbumInfo:uris withPage:nil withController:controller];
+            [self getDetailedAlbumInfo:uris withPage:nil withCallback:callback];
         }
     }];
 }
 
 
--(void)getDetailedAlbumInfo:(NSMutableArray *)uris withPage:(NSURLRequest *)nextPage withController:(AlbumsTableViewController *)controller {
+-(void)getDetailedAlbumInfo:(NSMutableArray *)uris withPage:(NSURLRequest *)nextPage withCallback:(SpotifyAlbumInfoCallback)callback {
     NSError *error;
     NSURLRequest *req;
     
@@ -233,7 +233,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
         if (error != nil) {
             if ([error code] == 1001) {
-                [self getDetailedAlbumInfo:uris withPage:nextPage withController:controller];
+                [self getDetailedAlbumInfo:uris withPage:nextPage withCallback:callback];
             } else {
                 NSLog(@"Error retrieving detailed album info for multiple albums: %@", error);
             }
@@ -304,9 +304,15 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
                 t.name = track.name;
             }
             
-            a.nextTrackPageUrl = [(SPTListPage *)album.firstTrackPage nextPageURL];
-            
-            [controller albumInfoCallback:YES album:a error:nil];
+            if (album.firstTrackPage.nextPageURL != nil) {
+                a.nextTrackPageUrl = [(SPTListPage *)album.firstTrackPage createRequestForNextPageWithAccessToken:SpotifyAccessToken error:&error];
+                if (error != nil) {
+                    NSLog(@"Error creating request for next page of tacks for album %@: %@", a.name, error);
+                    a.nextTrackPageUrl = nil;
+                }
+            } else {
+                a.nextTrackPageUrl = nil;
+            }
             
             // add to artist
             NSUInteger index;
@@ -321,7 +327,65 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             if (index != NSNotFound) {
                 [[allArtists objectAtIndex:index] addToAlbums:a];
             }
+            
+            
+            // AFTER adding to artist (not before)
+            callback (a, nil);
         }
+    }];
+}
+
+-(void)getAllTracksForAlbum:(Album *)album withCallback:(SpotifyAlbumInfoCallback)callback {
+    NSURLRequest *req;
+    
+    if (album.nextTrackPageUrl != nil) {
+        req = album.nextTrackPageUrl;
+    } else {
+        return;
+    }
+    [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+        if (error != nil) {
+            if ([error code] == 1001) {
+                [self getAllTracksForAlbum:album withCallback:callback];
+            } else {
+                NSLog(@"Error retrieving tack info for album %@: %@", album.name, error);
+            }
+            return;
+        }
+        
+        SPTListPage *page = [SPTListPage listPageFromData:data withResponse:response expectingPartialChildren:nil rootObjectKey:nil error:&error];
+        
+        
+        if (error != nil) {
+            NSLog(@"Error parsing track data for album %@: %@", album.name, error);
+            return;
+        }
+        
+        for (SPTTrack *track in page.items) {
+            Track *t = [album.tracks objectAtIndex:track.trackNumber - 1];
+            t.id = (NSString *)track.uri;
+            t.discNumber = track.discNumber;
+            t.href = track.sharingURL;
+            t.preview = track.previewURL;
+            t.duration = track.duration;
+            t.flaggedExplicit = track.flaggedExplicit;
+            t.name = track.name;
+        }
+            
+        if (page.nextPageURL != nil) {
+            album.nextTrackPageUrl = [page createRequestForNextPageWithAccessToken:SpotifyAccessToken error:&error];
+            
+            if (error == nil){
+                [self getAllTracksForAlbum:album withCallback:callback];
+            } else {
+                NSLog(@"Error creating request for tracks for album %@: %@", album.name, error);
+            }
+        } else {
+            album.nextTrackPageUrl = nil;
+        }
+        
+        // AFTER adding to artist (not before)
+        callback (album, nil);
     }];
 }
 

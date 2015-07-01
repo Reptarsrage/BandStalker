@@ -25,7 +25,7 @@
 @property (nonatomic, retain)NSString *artist;
 @property NSInteger sectionNumber;
 @property (nonatomic, retain)NSData *cached_image;
-@property (nonatomic, retain)NSURL *nextTrackPageUrl;
+@property (nonatomic, retain)NSURLRequest *nextTrackPageUrl;
 @property (nonatomic, retain, readonly)NSMutableArray *tracks;
 
 
