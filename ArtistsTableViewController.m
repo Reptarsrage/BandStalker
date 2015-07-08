@@ -237,6 +237,7 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         //add code here for when you hit delete
+        [sharedManager removeArtist:[[artists objectAtIndex:indexPath.section] objectAtIndex:indexPath.row]];
         [[artists objectAtIndex:indexPath.section] removeObjectAtIndex:indexPath.row];
         [self.tableView reloadData];
     }

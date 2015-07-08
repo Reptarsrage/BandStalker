@@ -12,28 +12,174 @@
 //private methods
 - (void)getAllArtistInfo:(NSMutableArray *)artistUIds forController:(ArtistsTableViewController *)controller;
 -(void)getDetailedAlbumInfo:(NSMutableArray *)uris withPage:(NSURLRequest *)nextPage withCallback:(SpotifyAlbumInfoCallback)callback;
+-(BOOL)loginValidate;
+
 @end
 
 @implementation SpotifyManager {
     @private
     NSMutableArray *allArtists;
+    NSMutableArray *deletedArtists;
 }
 
 @synthesize expires;
 @synthesize artistQueue;
 @synthesize SpotifyAccessToken;
 @synthesize SpotifySession;
+@synthesize newItems;
 
 
 const NSString *client_id = @"88ac57858a2e451c95cb5334f11686db";
 const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
+
+-(BOOL)loginValidate {
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    
+    if ((long)expires <= (long)now) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+-(BOOL)makeBackGroundRequest:(NSInteger)capacity withCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler{
+    if (! [self loginValidate]) {
+        NSInteger i = 0;
+        while (![self login]) {
+            // do in background?
+            i++;
+            if (i > 3) {
+                completionHandler(UIBackgroundFetchResultFailed);
+                return NO;
+            }
+        }
+    }
+    
+    if (allArtists == nil)
+        allArtists = [NSMutableArray arrayWithCapacity:1];
+    if (artistQueue == nil)
+        artistQueue = [NSMutableArray arrayWithCapacity:1];
+    
+    // get the list of uids
+    int i = 0;
+    NSUInteger latestLookup = 0;
+    NSUInteger replaceIndex = 0;
+    NSMutableArray *artistsToQuery = [NSMutableArray arrayWithCapacity:1];
+    for (Artist *artist in allArtists) {
+        
+        // fill to capacity first off
+        if (i < capacity) {
+            [artistsToQuery addObject:artist];
+            if (artist.latestLookup > latestLookup) {
+                latestLookup = artist.latestLookup;
+                replaceIndex = i;
+            }
+            i++;
+            continue;
+        }
+        
+        // if artists latest look happened before the latest lookup in the current set, then replace it
+        // in other words, allways lookup the artist who's been waiting the longest
+        if (artist.latestLookup < latestLookup) {
+            // replace and find newest latest lookup
+            [artistsToQuery replaceObjectAtIndex:replaceIndex withObject:artist];
+            latestLookup = NSIntegerMax;
+            replaceIndex = 0;
+            
+            for (Artist *a in artistsToQuery) {
+                if (a.latestLookup < latestLookup) {
+                    latestLookup = artist.latestLookup;
+                    replaceIndex = [artistsToQuery indexOfObject:a];
+                }
+            }
+            
+        }
+    }
+    
+    
+    // perform lookup of all artists
+    __block NSInteger finished = 0;
+    __block BOOL newData = NO;
+    for (Artist *a in artistsToQuery) {
+        [self getAllAlbumsForArtist:a.id pageURL:nil withAlbumUris:nil withCallback:^(Album *album, NSError *error) {
+            finished++;
+            
+            if (error != nil && finished >= artistsToQuery.count) {
+                completionHandler(UIBackgroundFetchResultFailed);
+            }
+            
+            if (album != nil) {
+                newData = YES;
+                // new album found!
+                if ([[[UIApplication sharedApplication]  currentUserNotificationSettings] types] & UIUserNotificationTypeAlert) {
+                    // send an alert
+                    UILocalNotification *notification = [[UILocalNotification alloc] init];
+                    
+                    // Date
+                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                    dateFormatter.timeStyle = NSDateFormatterShortStyle;
+                    dateFormatter.dateStyle = NSDateFormatterMediumStyle;
+                    NSLocale *usLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+                    [dateFormatter setLocale:usLocale];
+                    
+                    
+                    notification.alertTitle = [NSString stringWithFormat:@"%@ just released a new album!", album.artist];
+                    notification.alertTitle = [NSString stringWithFormat:@"%@ was released on %@", album.name, [dateFormatter stringFromDate:album.releaseDate]];
+                    
+                    [[UIApplication sharedApplication] presentLocalNotificationNow:notification];
+                    
+                }
+                
+                if ([[[UIApplication sharedApplication]  currentUserNotificationSettings] types] & UIUserNotificationTypeAlert) {
+                    // display a badge
+                    UILocalNotification *notification = [[UILocalNotification alloc] init];
+                    notification.applicationIconBadgeNumber = [[UIApplication sharedApplication] applicationIconBadgeNumber] + 1;
+                    [[UIApplication sharedApplication] presentLocalNotificationNow:notification];
+                }
+            }
+            
+            if (finished >= artistsToQuery.count) {
+                if (newData) {
+                    newItems = YES;
+                    completionHandler(UIBackgroundFetchResultNewData);
+                } else {
+                    completionHandler(UIBackgroundFetchResultNoData);
+                }
+            }
+            
+        }];
+    }
+    
+    return YES;
+}
+
+- (NSMutableArray *) popDeletedArtistQueue {
+    NSMutableArray *queue = [NSMutableArray arrayWithCapacity:1];
+    for (Artist *a in deletedArtists) {
+        [queue addObject:a];
+    }
+    [deletedArtists removeAllObjects];
+    return queue;
+}
+
+- (void) removeArtist:(Artist *)artist{
+    if (artist == nil || allArtists == nil){
+        return;
+    }
+    
+    if (deletedArtists == nil)
+        deletedArtists = [NSMutableArray arrayWithCapacity:1];
+    
+    [allArtists removeObject:artist];
+    [deletedArtists addObject:artist];
+}
 
 // Logs the app in using my account and credentials, expires in awhile
 - (BOOL)login {
     NSURL *loginUrl = [NSURL URLWithString:@"https://accounts.spotify.com/api/token"];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:loginUrl
                                                            cachePolicy:NSURLRequestReturnCacheDataElseLoad
-                                                       timeoutInterval:30];
+                                                       timeoutInterval:20];
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     
@@ -73,7 +219,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     }
     
     SpotifyAccessToken = [data valueForKey:@"access_token"];
-    expires = [[data valueForKey:@"expires_in"] longValue];
+    expires = (long)[[NSDate date] timeIntervalSince1970] + [[data valueForKey:@"expires_in"] longValue];
     
     if (!SpotifyAccessToken) {
         NSLog(@"Error parsing login response: no token");
@@ -92,10 +238,15 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 
 // gets uid for one artist
 - (void)retrieveArtistInfoFromSpotify:(Artist *)artist forController:(ArtistsTableViewController *)controller {
+    if (! [self loginValidate]) {
+        [self login];
+    }
+    
     if (allArtists == nil)
         allArtists = [NSMutableArray arrayWithCapacity:1];
     if (artistQueue == nil)
         artistQueue = [NSMutableArray arrayWithCapacity:1];
+    
     
     [SPTSearch performSearchWithQuery:artist.name queryType:SPTQueryTypeArtist accessToken:SpotifyAccessToken callback:^(NSError *error, id object) {
         if (error != nil) {
@@ -111,8 +262,10 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
                 artist.name = o.name;
                 artist.id = (NSString *)o.uri ;
                 artist.href = o.sharingURL;
+                artist.latestLookup = 0;
                 [allArtists addObject:artist]; //artistIDs
                 [artistQueue addObject:artist];
+                
                 
                 // get detailed info for each artist
                 //TODO make one bulk call instead of many calls
@@ -124,6 +277,10 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 
 
 - (void)getAllArtistInfo:(NSMutableArray *)artistUIds forController:(ArtistsTableViewController *)controller{
+    if (! [self loginValidate]) {
+        [self login];
+    }
+    
     [SPTArtist artistsWithURIs:artistUIds session:SpotifySession callback:^(NSError *error, id object) {
         if (error != nil) {
             NSLog(@"Error retrieving artist info for artists: %@", error);
@@ -168,6 +325,10 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 
 
 -(void)getAllAlbumsForArtist:(NSString *)uid pageURL:(NSURLRequest *)nextPage withAlbumUris:(NSMutableArray *)uris withCallback:(SpotifyAlbumInfoCallback)callback {
+    if (! [self loginValidate]) {
+        [self login];
+    }
+    
     NSError *error = nil;
     NSURLRequest *req ;
     if (nextPage == nil) {
@@ -222,6 +383,10 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 
 
 -(void)getDetailedAlbumInfo:(NSMutableArray *)uris withPage:(NSURLRequest *)nextPage withCallback:(SpotifyAlbumInfoCallback)callback {
+    if (! [self loginValidate]) {
+        [self login];
+    }
+    
     NSError *error;
     NSURLRequest *req;
     
@@ -236,6 +401,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
                 [self getDetailedAlbumInfo:uris withPage:nextPage withCallback:callback];
             } else {
                 NSLog(@"Error retrieving detailed album info for multiple albums: %@", error);
+                callback (nil, error);
             }
             
             return;
@@ -244,6 +410,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
         NSArray *json = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
         if (error != nil) {
             NSLog(@"Error parsing JSON data for albums.");
+            callback (nil, error);
             return;
         }
         NSArray *albums = [SPTAlbum albumsFromDecodedJSON:json error:&error];
@@ -252,13 +419,14 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
         
         if (error != nil) {
             NSLog(@"Error parsing detailed album data for multiple albums: %@", error);
+            callback (nil, error);
             return;
         }
         
         for (SPTAlbum *album in albums) {
             Album *a = [[Album alloc] init];
             a.name = album.name;
-            a.id = (NSString *)album.uri;
+            a.id = [album.uri absoluteString];
             a.releaseDate = album.releaseDate;
             //a.sectionNumber = [controller getAlbumSection:a.releaseDate];
             a.artist = [(SPTArtist *)[album.artists firstObject] name];
@@ -267,6 +435,15 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             a.image_url_med = nil;
             a.href = album.sharingURL;
             a.popularity = album.popularity;
+            
+            if (a.releaseDate == nil) {
+                NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+                NSDateComponents *components = [[NSDateComponents alloc] init];
+                [components setYear:album.releaseYear];
+                [components setMonth:1];
+                [components setDay:1];
+                a.releaseDate = [calendar dateFromComponents:components];
+            }
             
             switch (album.type) {
                 case SPTAlbumTypeAlbum:
@@ -325,6 +502,29 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             }];
             
             if (index != NSNotFound) {
+                ((Artist *)[allArtists objectAtIndex:index]).latestLookup = [[NSDate date] timeIntervalSince1970];
+                
+                // check if duplicate
+                NSUInteger aindex;
+                
+                if (((Artist *)[allArtists objectAtIndex:index]).albums == nil) {
+                    aindex = NSNotFound;
+                } else {
+                    aindex = [((Artist *)[allArtists objectAtIndex:index]).albums  indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+                        if ([((Album *)obj).id isEqualToString:a.id]) {
+                            *stop = YES;
+                            return YES;
+                        }
+                        return NO;
+                    }];
+                }
+                
+                if (aindex != NSNotFound) {
+                    callback (nil, nil);
+                    return; // already in ablums
+                }
+                
+                // not a duplicate, so add it
                 [[allArtists objectAtIndex:index] addToAlbums:a];
             }
             
@@ -336,6 +536,10 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 }
 
 -(void)getAllTracksForAlbum:(Album *)album withCallback:(SpotifyAlbumInfoCallback)callback {
+    if (! [self loginValidate]) {
+        [self login];
+    }
+    
     NSURLRequest *req;
     
     if (album.nextTrackPageUrl != nil) {

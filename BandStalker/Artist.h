@@ -24,6 +24,7 @@
 @property (nonatomic, retain, readonly) NSMutableArray *albums;
 @property NSInteger sectionNumber;
 @property (nonatomic, retain)NSData *cached_image;
+@property long latestLookup;
 
 - (void)addToAlbums: (Album *)album;
 

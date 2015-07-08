@@ -24,7 +24,7 @@
 @implementation AlbumsTableViewController
 
 - (void) albumInfoCallback:(Album *)album error:(NSError *)error {
-    if (error == nil) {
+    if (error == nil && album != nil) {
         // find correct place and add object
         album.sectionNumber = [self getAlbumSection:album.releaseDate];
         
@@ -94,7 +94,7 @@
      */
     
     if (releaseDate == nil)
-        return 6; // default before info from Spotify arrives
+        return 7; // default before info from Spotify arrives
     
     NSCalendar *cal = [NSCalendar currentCalendar];
     NSDateComponents *components = [cal components:(NSCalendarUnitEra|NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:[NSDate date]];
@@ -110,7 +110,7 @@
     
     if(diff.year > 10) {
         //ignore
-        return -1;
+        return 6;
     } else if (diff.year > 1) {
         return 5;
     }else if (diff.month > 6) {
@@ -131,6 +131,17 @@
     
     [super viewWillAppear:animated];
     
+    if (sharedManager.newItems == NO) {
+        // Delay execution of my block for 3 seconds.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            UITabBarController *tbc = self.tabBarController;
+            UITabBarItem *tbi = (UITabBarItem*)[[[tbc tabBar] items] objectAtIndex:1];
+            [tbi setBadgeValue:nil];
+        });
+    } else {
+        sharedManager.newItems = NO;
+    }
+    
     while ([sharedManager.artistQueue count] > 0) {
         Artist *artist = [sharedManager.artistQueue lastObject];
         [sharedManager.artistQueue removeLastObject];
@@ -139,6 +150,16 @@
                 [self albumInfoCallback:album error:error];
             }];
     }
+    
+    for (Artist *artist in [sharedManager popDeletedArtistQueue]) {
+        for (Album *album in artist.albums) {
+            NSInteger sect = [self getAlbumSection:album.releaseDate];
+            if (sect >= 0) {
+                [[self.albums objectAtIndex:sect] removeObject:album];
+            }
+        }
+    }
+    [self.tableView reloadData];
 }
 
 - (void)viewDidLoad {
@@ -300,6 +321,9 @@
                 break;
             case 5:
                 titleLabel.text = @"This Decade";
+                break;
+            case 6:
+                titleLabel.text = @"This Century";
                 break;
             default:
                 titleLabel.text = @"Sometime";

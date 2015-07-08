@@ -23,7 +23,12 @@
 @implementation ArtistDrilldownTableViewController
 
 - (void) albumInfoCallback:(Album *)album error:(NSError *)error {
-    if (error == nil) {
+    if (error == nil && album != nil) {
+        sharedManager.newItems = NO;
+        UITabBarController *tbc = self.tabBarController;
+        UITabBarItem *tbi = (UITabBarItem*)[[[tbc tabBar] items] objectAtIndex:1];
+        [tbi setBadgeValue:@"New"];
+        
         [self.tableView reloadData];
         [sharedManager getAllTracksForAlbum:album withCallback:^(Album *album, NSError *error) {
             [self albumInfoCallback:album error:error];
@@ -94,7 +99,14 @@
         oCell.trackLength.text = [NSString stringWithFormat:@"0:00"];
         oCell.trackNumber.text = [NSString stringWithFormat:@"%ld", (long)indexPath.row];
     } else {
-        oCell.trackName.text = a.name;
+        
+        
+        if (a.name.length > 30) {
+            oCell.trackName.text = [NSString stringWithFormat:@"%@...", [a.name substringToIndex:30]];
+        } else {
+            oCell.trackName.text = a.name;
+        }
+        
         oCell.trackNumber.text = [NSString stringWithFormat:@"%ld", (long)a.trackNumber ];
         
         NSInteger ti = (NSInteger)a.duration;

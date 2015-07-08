@@ -18,22 +18,25 @@
 typedef void (^SpotifyAlbumInfoCallback) (Album *album, NSError *error);
 
 @interface SpotifyManager : NSObject  {
-    long expires;
+    NSTimeInterval expires;
     NSString *SpotifyAccessToken;
     SPTSession *SpotifySession;
     NSMutableArray *artistQueue;
 }
 
-@property (nonatomic) long expires;
+@property (nonatomic) NSTimeInterval expires;
 @property (nonatomic, retain) NSString *SpotifyAccessToken;
 @property (nonatomic, retain) NSMutableArray *artistQueue;
 @property (nonatomic, retain) SPTSession *SpotifySession;
+@property (nonatomic) BOOL newItems;
 
+- (NSMutableArray *) popDeletedArtistQueue;
+- (void) removeArtist:(Artist *)artist;
 - (BOOL)login;
 - (void)retrieveArtistInfoFromSpotify:(Artist *)artist forController:(ArtistsTableViewController *)controller;
 -(void)getAllAlbumsForArtist:(NSString *)uid pageURL:(NSURLRequest *)nextPage withAlbumUris:(NSMutableArray *)uris withCallback:(SpotifyAlbumInfoCallback)callback;
 -(void)getAllTracksForAlbum:(Album *)album withCallback:(SpotifyAlbumInfoCallback)callback;
-
+-(BOOL)makeBackGroundRequest:(NSInteger)capacity withCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
 + (id)sharedManager;
 

@@ -18,7 +18,7 @@
 @implementation AlbumDrilldownTableViewController
 
 - (void) albumInfoCallback:(Album *)album error:(NSError *)error {
-    if (error == nil) {
+    if (error == nil && album != nil) {
         [self.tableView reloadData];
     } else {
         // failure
