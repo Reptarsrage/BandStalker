@@ -14,6 +14,7 @@
     __weak IBOutlet UINavigationItem *nav;
     @private
     SpotifyManager *sharedManager;
+    UIView *errorLabel;
 }
 
 @end
@@ -21,6 +22,17 @@
 
 
 @implementation ArtistDrilldownTableViewController
+
+- (void) showEmptyTableLabel {
+    // show message if empty
+    if (self.artist == nil || [self.artist.albums count] == 0) {
+        //errorLabel.hidden = NO;
+        self.tableView.backgroundView = errorLabel;
+    } else {
+        //    errorLabel.hidden = YES;
+        self.tableView.backgroundView = nil;
+    }
+}
 
 - (void) albumInfoCallback:(Album *)album error:(NSError *)error {
     if (error == nil && album != nil) {
@@ -36,6 +48,8 @@
     } else {
         // failure
     }
+    
+    [self showEmptyTableLabel];
 }
 
 - (void)viewDidLoad {
@@ -53,6 +67,8 @@
     [headerView addSubview:labelView];
     self.tableView.tableHeaderView = headerView;
     
+    // get the common empty table error message
+    errorLabel = [CommonController getErrorLabel:self.tableView.frame withTitle:@"No Information" withMsg:@"There is no information to display for this artist"];
     
     // add all info
     imageView.image = [UIImage imageWithData:self.artist.cached_image];
@@ -63,6 +79,8 @@
             [self albumInfoCallback:album error:error];
         }];
     nav.title = self.artist.name;
+    
+    [self showEmptyTableLabel];
 }
 
 - (void)didReceiveMemoryWarning {

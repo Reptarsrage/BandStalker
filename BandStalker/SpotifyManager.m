@@ -171,7 +171,11 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
         deletedArtists = [NSMutableArray arrayWithCapacity:1];
     
     [allArtists removeObject:artist];
-    [deletedArtists addObject:artist];
+    if ([artistQueue indexOfObject:artist] == NSNotFound) {
+        [deletedArtists addObject:artist];
+    } else {
+        [artistQueue removeObject:artist];
+    }
 }
 
 // Logs the app in using my account and credentials, expires in awhile

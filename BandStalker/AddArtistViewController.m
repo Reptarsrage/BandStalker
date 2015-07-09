@@ -29,6 +29,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.text_field.delegate = self;
+    [self.text_field becomeFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -43,7 +44,7 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    if ([(UIBarItem *)sender tag] == 1) { // Cancel
+    if ([sender isKindOfClass:[UIBarItem class]] && [(UIBarItem *)sender tag] == 1) { // Cancel
         self.artist = nil;
     } else if (self.text_field.text != nil && ![self.text_field.text isEqualToString:@""]) {
         self.artist = [[Artist alloc] init];

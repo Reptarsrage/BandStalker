@@ -14,6 +14,7 @@
 #import "ArtistsTableViewController.h"
 #import "AlbumsTableViewController.h"
 #import "ArtistDrilldownTableViewController.h"
+#import "CommonController.h"
 
 typedef void (^SpotifyAlbumInfoCallback) (Album *album, NSError *error);
 

@@ -10,12 +10,25 @@
 
 @interface AlbumDrilldownTableViewController () {
     __weak IBOutlet UINavigationItem *nav;
-@private SpotifyManager *sharedManager;
+@private
+    SpotifyManager *sharedManager;
+    UIView *errorLabel;
 }
 
 @end
 
 @implementation AlbumDrilldownTableViewController
+
+- (void) showEmptyTableLabel {
+    // show message if empty
+    if (self.album == nil || [self.album.tracks count] == 0) {
+        //errorLabel.hidden = NO;
+        self.tableView.backgroundView = errorLabel;
+    } else {
+        //    errorLabel.hidden = YES;
+        self.tableView.backgroundView = nil;
+    }
+}
 
 - (void) albumInfoCallback:(Album *)album error:(NSError *)error {
     if (error == nil && album != nil) {
@@ -27,6 +40,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    // get the common empty table error message
+    errorLabel = [CommonController getErrorLabel:self.tableView.frame withTitle:@"No Information" withMsg:@"There is no information to display for this album"];
     
     // create header using artist info
     CGFloat w = self.tableView.frame.size.width;

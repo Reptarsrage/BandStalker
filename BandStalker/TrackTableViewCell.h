@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface TrackTableViewCell : UITableViewCell
-@property (weak, nonatomic) IBOutlet UILabel *trackNumber;
-@property (weak, nonatomic) IBOutlet UILabel *trackName;
-@property (weak, nonatomic) IBOutlet UILabel *trackLength;
+
+@property (nonatomic) UILabel *trackNumber;
+@property (nonatomic) UILabel *trackName;
+@property (nonatomic) UILabel *trackLength;
 
 @end

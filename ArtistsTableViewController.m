@@ -18,12 +18,24 @@
     @private
     SpotifyManager *sharedManager;
     NSMutableArray *artists;
+    UIView *errorLabel;
+    NSInteger artistCount;
 }
 @end
 
 
 @implementation ArtistsTableViewController
 
+- (void) showEmptyTableLabel {
+    // show message if empty
+    if (artists == nil || artistCount == 0) {
+        //errorLabel.hidden = NO;
+        self.tableView.backgroundView = errorLabel;
+    } else {
+    //    errorLabel.hidden = YES;
+        self.tableView.backgroundView = nil;
+    }
+}
 
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue {
     AddArtistViewController *src = [segue sourceViewController];
@@ -96,17 +108,24 @@
         
         if (index == NSNotFound) {
             [[artists objectAtIndex:sect] addObject:artist];
+            artistCount++;
         } else {
             [[artists objectAtIndex:sect] insertObject:artist atIndex:index];
+            artistCount++;
         }
         
+        [self showEmptyTableLabel];
+        
         [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:[NSIndexPath indexPathForRow:index inSection:sect], nil] withRowAnimation:UITableViewRowAnimationNone];
+
         
     } else {
         NSLog(@"Error retrieving artist info for %@: %@", artist.name, error);
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Not Found" message:[NSString stringWithFormat:@"No info found for artist \"%@\"", artist.name ] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [alert show];
         [[artists objectAtIndex:artist.sectionNumber ] removeObject:artist];
+        artistCount--;
+        [self showEmptyTableLabel];
         [self.tableView reloadData];
     }
 }
@@ -125,15 +144,15 @@
     
     Artist *a1 = [[Artist alloc] init];
     a1.name = @"Modest Mouse";
-    [ret addObject:a1];
+    //[ret addObject:a1];
     
     Artist *a2 = [[Artist alloc] init];
     a2.name = @"Ninja Sex Party";
-    [ret addObject:a2];
+    //[ret addObject:a2];
     
     Artist *a3 = [[Artist alloc] init];
     a3.name = @"Disturbed";
-    [ret addObject:a3];
+    //[ret addObject:a3];
     
     for (MPMediaItemCollection *collection in [[MPMediaQuery artistsQuery] collections]) {
         a1 = [[Artist alloc] init];
@@ -156,6 +175,7 @@
     
     [super viewWillAppear:animated];
     
+    [self showEmptyTableLabel];
 }
 
 - (void)viewDidLoad {
@@ -176,6 +196,10 @@
     self.tableView.rowHeight = 80.0f;
     
     NSMutableArray *artistsTemp = [self getArtists];
+    artistCount = 0;
+    
+    // get the common empty table error message
+    errorLabel = [CommonController getErrorLabel:self.tableView.frame withTitle:@"No Artists" withMsg:@"Use the + icon in the upper right to add artists"];
     
     /*The data source enumerates the array of model objects and sends sectionForObject:collationStringSelector: to the collation manager on each iteration. This method takes as arguments a model object and a property or method of the object that it uses in collation. Each call returns the index of the section array to which the model object belongs, and that value is assigned to the sectionNumber property.*/
     UILocalizedIndexedCollation *col = [UILocalizedIndexedCollation currentCollation];
@@ -239,7 +263,16 @@
         //add code here for when you hit delete
         [sharedManager removeArtist:[[artists objectAtIndex:indexPath.section] objectAtIndex:indexPath.row]];
         [[artists objectAtIndex:indexPath.section] removeObjectAtIndex:indexPath.row];
+        artistCount--;
+        [self showEmptyTableLabel];
         [self.tableView reloadData];
+        
+        if ([[sharedManager artistQueue] count] == 0) {
+            sharedManager.newItems = NO;
+            UITabBarController *tbc = self.tabBarController;
+            UITabBarItem *tbi = (UITabBarItem*)[[[tbc tabBar] items] objectAtIndex:1];
+            [tbi setBadgeValue:nil];
+        }
     }
 }
 

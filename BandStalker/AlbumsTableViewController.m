@@ -16,12 +16,26 @@
 #import "AlbumDrilldownTableViewController.h"
 
 @interface AlbumsTableViewController () {
-    @private SpotifyManager *sharedManager;
+@private
+    SpotifyManager *sharedManager;
+    UIView *errorLabel;
+    NSInteger albumCount;
+    NSMutableArray *albums;
 }
-@property NSMutableArray *albums;
-@end
 
+@end
 @implementation AlbumsTableViewController
+
+- (void) showEmptyTableLabel {
+    // show message if empty
+    if (albums == nil || albumCount == 0) {
+        //errorLabel.hidden = NO;
+        self.tableView.backgroundView = errorLabel;
+    } else {
+        //    errorLabel.hidden = YES;
+        self.tableView.backgroundView = nil;
+    }
+}
 
 - (void) albumInfoCallback:(Album *)album error:(NSError *)error {
     if (error == nil && album != nil) {
@@ -32,7 +46,7 @@
             return;
         }
         
-        NSUInteger index = [[self.albums objectAtIndex:album.sectionNumber] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+        NSUInteger index = [[albums objectAtIndex:album.sectionNumber] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
             if ([[(Album *)obj releaseDate] compare:album.releaseDate] == NSOrderedAscending) {
                 *stop = YES;
                 return YES;
@@ -41,9 +55,11 @@
         }];
         
         if (index == NSNotFound) {
-            [[self.albums objectAtIndex:album.sectionNumber] addObject:album];
+            [[albums objectAtIndex:album.sectionNumber] addObject:album];
+            albumCount++;
         } else {
-            [[self.albums objectAtIndex:album.sectionNumber] insertObject:album atIndex:index];
+            [[albums objectAtIndex:album.sectionNumber] insertObject:album atIndex:index];
+            albumCount++;
         }
         [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:album.sectionNumber] withRowAnimation:UITableViewRowAnimationNone];
         
@@ -54,10 +70,12 @@
     } else {
         // failure
     }
+    
+    [self showEmptyTableLabel];
 }
 
 - (NSMutableArray *)getAlbums {
-    NSMutableArray *albums = [[NSMutableArray alloc] init];
+    NSMutableArray *retAlbums = [[NSMutableArray alloc] init];
     
     
     for (MPMediaItemCollection *collection in [[MPMediaQuery albumsQuery] collections]) {
@@ -65,20 +83,10 @@
         a1.name = [[collection representativeItem] valueForProperty:MPMediaItemPropertyAlbumTitle];
         a1.artist = [[collection representativeItem] valueForProperty:MPMediaItemPropertyAlbumArtist];
         //MPMediaItemPropertyReleaseDate
-        //[albums addObject:a1];
+        //[retAlbums addObject:a1];
     }
     
-    while ([sharedManager.artistQueue count] > 0) {
-        Artist *artist = [sharedManager.artistQueue lastObject];
-        [sharedManager.artistQueue removeLastObject];
-        if (artist && ![artist.name isEqualToString:@""])
-            [sharedManager getAllAlbumsForArtist:artist.id pageURL:nil withAlbumUris:nil withCallback:^(Album *album, NSError *error) {
-                [self albumInfoCallback:album error:error];
-            }];
-        
-        
-    }
-    return albums;
+    return retAlbums;
 }
 
 
@@ -146,20 +154,30 @@
         Artist *artist = [sharedManager.artistQueue lastObject];
         [sharedManager.artistQueue removeLastObject];
         if (artist && ![artist.name isEqualToString:@""])
-            [sharedManager getAllAlbumsForArtist:artist.id pageURL:nil withAlbumUris:nil withCallback:^(Album *album, NSError *error) {
-                [self albumInfoCallback:album error:error];
-            }];
+            //no lookup required, albums have already been fetched
+            if (artist.albums != nil && [artist.albums count] > 0) {
+                for (Album *album in artist.albums) {
+                    [self albumInfoCallback:album error:nil];
+                }
+            } else {
+                // need lookup
+                [sharedManager getAllAlbumsForArtist:artist.id pageURL:nil withAlbumUris:nil withCallback:^(Album *album, NSError *error) {
+                    [self albumInfoCallback:album error:error];
+                }];
+            }
     }
     
     for (Artist *artist in [sharedManager popDeletedArtistQueue]) {
         for (Album *album in artist.albums) {
             NSInteger sect = [self getAlbumSection:album.releaseDate];
-            if (sect >= 0) {
-                [[self.albums objectAtIndex:sect] removeObject:album];
+            if (sect >= 0 && [[albums  objectAtIndex:sect] indexOfObject:album] != NSNotFound) {
+                [[albums objectAtIndex:sect] removeObject:album];
+                albumCount--;
             }
         }
     }
     [self.tableView reloadData];
+    [self showEmptyTableLabel];
 }
 
 - (void)viewDidLoad {
@@ -170,6 +188,9 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    // get the common empty table error message
+    errorLabel = [CommonController getErrorLabel:self.tableView.frame withTitle:@"No Albums" withMsg:@"There are no albums found for the current artists"];
     
     sharedManager = [SpotifyManager sharedManager];
     
@@ -197,13 +218,14 @@
     // (3)
     for (Album *a in albumsTemp) {
         [(NSMutableArray *)[sectionArrays objectAtIndex:a.sectionNumber] addObject:a];
+        albumCount++;
     }
     // (4)
-    self.albums = [NSMutableArray arrayWithCapacity:1];
+    albums = [NSMutableArray arrayWithCapacity:1];
     for (NSMutableArray *sectionArray in sectionArrays) {
         NSMutableArray *sortedSection = [NSMutableArray arrayWithArray:[col sortedArrayFromArray:sectionArray
                                                                          collationStringSelector:@selector(name)]];
-        [self.albums addObject:sortedSection];
+        [albums addObject:sortedSection];
     }
     
     // start retrieving data for albums
@@ -223,7 +245,7 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    if ([[self.albums objectAtIndex:section] count] > 0) {
+    if ([[albums objectAtIndex:section] count] > 0) {
         return [[[UILocalizedIndexedCollation currentCollation] sectionTitles] objectAtIndex:section];
     }
     return nil;
@@ -236,12 +258,12 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     // Return the number of sections.
-    return [self.albums count];
+    return [albums count];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     // Return the number of rows in the section.
-    return [[self.albums objectAtIndex:section] count];
+    return [[albums objectAtIndex:section] count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -254,7 +276,7 @@
     
     // Configure the cell...
     customTableViewCell *oCell = (customTableViewCell *)cell;
-    Album *a = [[self.albums objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    Album *a = [[albums objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     if (a.id == nil || a.image_url_small == nil) {
         oCell.titleLabel.text = [NSString stringWithFormat:@"%@ [Unkonwn type]", a.name];
         oCell.subTitleLabel.text = @"Error retrieving data";
@@ -292,13 +314,13 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-    Album *a = [[self.albums objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    Album *a = [[albums objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     [self performSegueWithIdentifier:@"AlbumDrilldownSegue" sender:a];
 }
 
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     
-    if ([[self.albums objectAtIndex:section] count] > 0) {
+    if ([[albums objectAtIndex:section] count] > 0) {
         UIView *customTitleView = [ [UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 30)];
         customTitleView.backgroundColor = [UIColor whiteColor];
         UILabel *titleLabel = [ [UILabel alloc] initWithFrame:CGRectMake(10, 0, 300, 30)];
@@ -345,7 +367,7 @@
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    if ([[self.albums objectAtIndex:section] count] > 0) {
+    if ([[albums objectAtIndex:section] count] > 0) {
         return 30;
     } else {
         return 0;
