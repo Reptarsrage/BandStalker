@@ -10,8 +10,8 @@
 
 @interface TrackTableViewCell : UITableViewCell
 
-@property (nonatomic) UILabel *trackNumber;
-@property (nonatomic) UILabel *trackName;
-@property (nonatomic) UILabel *trackLength;
+@property (nonatomic, retain) UILabel *trackNumber;
+@property (nonatomic, retain) UILabel *trackName;
+@property (nonatomic, retain) UILabel *trackLength;
 
 @end

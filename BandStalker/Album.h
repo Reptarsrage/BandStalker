@@ -27,7 +27,7 @@
 @property (nonatomic, retain)NSData *cached_image;
 @property (nonatomic, retain)NSURLRequest *nextTrackPageUrl;
 @property (nonatomic, retain, readonly)NSMutableArray *tracks;
-
+@property double image_aspect_ratio;
 
 - (void)addToTracks: (Track *)album;
 

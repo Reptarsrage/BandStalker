@@ -25,6 +25,7 @@
 @property NSInteger sectionNumber;
 @property (nonatomic, retain)NSData *cached_image;
 @property long latestLookup;
+@property double image_aspect_ratio;
 
 - (void)addToAlbums: (Album *)album;
 

@@ -13,6 +13,7 @@
 @private
     SpotifyManager *sharedManager;
     UIView *errorLabel;
+    UILabel *headerLabelTrackCount;
 }
 
 @end
@@ -36,7 +37,113 @@
     } else {
         // failure
     }
+    
+    headerLabelTrackCount.text = [NSString stringWithFormat:@"%lu", (unsigned long)self.album.tracks.count];
 }
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    // the user clicked one of the OK/Cancel buttons
+    if (buttonIndex == alertView.cancelButtonIndex)
+    { // cancelled
+        
+    }
+    else
+    {
+        [[UIApplication sharedApplication] openURL:self.album.href];
+    }
+}
+
+- (void) redirect:(id)sender {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Navigation warning" message:[NSString stringWithFormat:@"Would you like to continue to %@?", self.album.href] delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
+    [alert show];
+}
+
+- (void) drawHeader {
+    // create header using artist info
+    CGFloat w = self.tableView.frame.size.width;
+    
+    // create header
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, (w/2.0f) + 20.0f)];
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(5, 5, w/2.0f - 10, w/2.0f  - 10)];
+    UILabel *subTitleView = [[UILabel alloc] init];
+    UILabel *subTitleView1 = [[UILabel alloc] init];
+    headerLabelTrackCount = [[UILabel alloc] init];
+    UIButton *subTitleView3 = [UIButton buttonWithType:UIButtonTypeCustom];
+    UILabel *titleView = [[UILabel alloc] init];
+    
+    // add all info
+    imageView.image = [UIImage imageWithData:self.album.cached_image];
+    titleView.text = self.album.name;
+    subTitleView.text = [NSString localizedStringWithFormat:@"Popularity: %0.f", self.album.popularity];
+    subTitleView1.text = [NSString localizedStringWithFormat:@"Type: %@", self.album.type];
+    headerLabelTrackCount.text = [NSString localizedStringWithFormat:@"Tracks: %lu", (unsigned long)self.album.tracks.count];
+    [subTitleView3 setTitle:[NSString localizedStringWithFormat:@"Spotify"] forState:UIControlStateNormal];
+    
+    // title font
+    UIFont *f1 = [UIFont fontWithName:@"Helvetica" size:24];
+    
+    // subtitle font
+    UIFont *f2 = [UIFont fontWithName:@"Helvetica" size:14];
+    
+    CGSize titleSize = [titleView.text sizeWithAttributes:@{NSFontAttributeName: f1, NSForegroundColorAttributeName: [UIColor blackColor]}];
+    CGSize subTitleSize = [subTitleView.text sizeWithAttributes:@{NSFontAttributeName: f2, NSForegroundColorAttributeName: [UIColor grayColor]}];
+    CGSize subTitle3Size = [subTitleView3.titleLabel.text sizeWithAttributes:@{NSFontAttributeName: f2, NSForegroundColorAttributeName: [UIColor whiteColor]}];
+    subTitleSize.height += 10;
+    
+    // image
+    imageView.contentMode = UIViewContentModeScaleAspectFit;
+    imageView.backgroundColor = [UIColor lightGrayColor];
+    
+    // title
+    if (titleSize.width > headerView.frame.size.width - imageView.frame.size.width - 20) {
+        [titleView setFrame:CGRectMake(imageView.frame.origin.x + imageView.frame.size.width + 5, imageView.frame.origin.y, headerView.frame.size.width - imageView.frame.size.width - 20, titleSize.height * 2.0f)];
+        titleView.lineBreakMode = NSLineBreakByWordWrapping;
+        titleView.numberOfLines = 2;
+    } else {
+        [titleView setFrame:CGRectMake(imageView.frame.origin.x + imageView.frame.size.width + 5, imageView.frame.origin.y, headerView.frame.size.width - imageView.frame.size.width - 20, titleSize.height)];
+        titleView.lineBreakMode = NSLineBreakByTruncatingTail;
+    }
+    [titleView setFont:f1];
+    [titleView setTextColor:[UIColor blackColor]];
+    
+    // sub title - popularity
+    [subTitleView setFrame:CGRectMake(titleView.frame.origin.x, titleView.frame.origin.y + titleView.frame.size.height, titleView.frame.size.width, subTitleSize.height)];
+    subTitleView.lineBreakMode = NSLineBreakByTruncatingTail;
+    [subTitleView setFont:f2];
+    [subTitleView setTextColor:[UIColor grayColor]];
+    
+    // sub title 1 - followers
+    [subTitleView1 setFrame:CGRectMake(titleView.frame.origin.x, subTitleView.frame.origin.y + subTitleView.frame.size.height, titleView.frame.size.width, subTitleSize.height)];
+    subTitleView1.lineBreakMode = NSLineBreakByTruncatingTail;
+    [subTitleView1 setFont:f2];
+    [subTitleView1 setTextColor:[UIColor grayColor]];
+    
+    // sub title 2 - albums
+    [headerLabelTrackCount setFrame:CGRectMake(titleView.frame.origin.x, subTitleView1.frame.origin.y + subTitleView1.frame.size.height, titleView.frame.size.width, subTitleSize.height)];
+    headerLabelTrackCount.lineBreakMode = NSLineBreakByTruncatingTail;
+    [headerLabelTrackCount setFont:f2];
+    [headerLabelTrackCount setTextColor:[UIColor grayColor]];
+    
+    // sub title 3 - href
+    [subTitleView3 setFrame:CGRectMake(titleView.frame.origin.x, headerLabelTrackCount.frame.origin.y + headerLabelTrackCount.frame.size.height, subTitle3Size.width + 40, subTitle3Size.height + 10)];
+    [subTitleView3.titleLabel setFont:f2];
+    [subTitleView3.titleLabel setTextColor:[UIColor whiteColor]];
+    [subTitleView3 setBackgroundColor:RGB(29, 185, 84)];
+    subTitleView3.layer.cornerRadius = 10; // this value vary as per your desire
+    subTitleView3.clipsToBounds = YES;
+    [subTitleView3 addTarget:self action:NSSelectorFromString(@"redirect:") forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    // add to view
+    [headerView addSubview:titleView];
+    [headerView addSubview:imageView];
+    [headerView addSubview:subTitleView];
+    [headerView addSubview:subTitleView1];
+    [headerView addSubview:headerLabelTrackCount];
+    [headerView addSubview:subTitleView3];
+    self.tableView.tableHeaderView = headerView;
+}
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -44,22 +151,9 @@
     // get the common empty table error message
     errorLabel = [CommonController getErrorLabel:self.tableView.frame withTitle:@"No Information" withMsg:@"There is no information to display for this album"];
     
-    // create header using artist info
-    CGFloat w = self.tableView.frame.size.width;
-    //CGFloat h = self.tableView.frame.size.height;
+
     sharedManager = [SpotifyManager sharedManager];
-    
-    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.frame.size.width, (w/2.0f) + 20.0f)];
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(10, 10, w/2.0f - 20, w/2.0f  - 20)];
-    [headerView addSubview:imageView];
-    UILabel *labelView = [[UILabel alloc] initWithFrame:CGRectMake(w/2.0f, 10, w/2.0f - 10, headerView.frame.size.height / 4.0f)];
-    [headerView addSubview:labelView];
-    self.tableView.tableHeaderView = headerView;
-    
-    
-    // add all info
-    imageView.image = [UIImage imageWithData:self.album.cached_image];
-    labelView.text = self.album.name;
+    [self drawHeader];
     
     if (self.album.tracks == nil || self.album.nextTrackPageUrl != nil)
         [sharedManager getAllTracksForAlbum:self.album  withCallback:^(Album *album, NSError *error) {

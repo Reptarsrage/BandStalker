@@ -316,6 +316,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
                 a1.image_url_med = nil;
                 a1.popularity = a.popularity;
                 a1.followers = a.followerCount;
+                a1.image_aspect_ratio = a.largestImage.size.width / a.largestImage.size.height;
                 
                 //update in table
                 [controller artistInfoCallback:YES artist:a1 error:nil];
@@ -378,7 +379,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             }
         } else {
             if ([uris count] != page.totalListLength) {
-                NSLog(@"Error retrieving albums. %lu albums parsed does not equal %luld total albums in list.", (unsigned long)[uris count], page.totalListLength);
+                NSLog(@"Error retrieving albums. %lu albums parsed does not equal %luld total albums in list.", (unsigned long)[uris count], (unsigned long)page.totalListLength);
             }
             [self getDetailedAlbumInfo:uris withPage:nil withCallback:callback];
         }
@@ -439,6 +440,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             a.image_url_med = nil;
             a.href = album.sharingURL;
             a.popularity = album.popularity;
+            a.image_aspect_ratio = album.largestCover.size.width / album.largestCover.size.height;
             
             if (a.releaseDate == nil) {
                 NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
@@ -561,7 +563,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             return;
         }
         
-        SPTListPage *page = [SPTListPage listPageFromData:data withResponse:response expectingPartialChildren:nil rootObjectKey:nil error:&error];
+        SPTListPage *page = [SPTListPage listPageFromData:data withResponse:response expectingPartialChildren:NO rootObjectKey:nil error:&error];
         
         
         if (error != nil) {

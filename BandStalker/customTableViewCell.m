@@ -10,13 +10,25 @@
 
 @implementation customTableViewCell
 
+/*
 @synthesize titleLabel = _titleLabel;
 @synthesize subTitleLabel = _subTitleLabel;
 @synthesize subTitleLabel2 = _subTitleLabel2;
 @synthesize thumbImageView = _thumbImageView;
-
+*/
+ 
 - (void)awakeFromNib {
     // Initialization code
+    self.subTitleLabel2 = [[UILabel alloc] init];
+    self.titleLabel = [[UILabel alloc] init];
+    self.subTitleLabel = [[UILabel alloc] init];
+    self.thumbImageView = [[UIImageView alloc] init];
+    
+    
+    [self addSubview:self.thumbImageView];
+    [self addSubview:self.titleLabel];
+    [self addSubview:self.subTitleLabel];
+    [self addSubview:self.subTitleLabel2];
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
@@ -29,6 +41,49 @@
 - (void)drawRect:(CGRect)rect {
     [super drawRect:rect];
     
+    // draw body
+    // number / duration font
+    UIFont *f1 = [UIFont fontWithName:@"Helvetica" size:18];
+    
+    // number / duration font
+    UIFont *f2 = [UIFont fontWithName:@"Helvetica" size:12];
+    
+    CGSize titleSize = [self.titleLabel.text sizeWithAttributes:@{NSFontAttributeName: f1, NSForegroundColorAttributeName: [UIColor blackColor]}];
+    CGSize subTitleSize = [self.subTitleLabel.text sizeWithAttributes:@{NSFontAttributeName: f2, NSForegroundColorAttributeName: [UIColor grayColor]}];
+    
+    // set image
+    [self.thumbImageView setFrame:CGRectMake(rect.origin.x + 5, rect.origin.y + 5, rect.size.height - 10, rect.size.height - 10)];
+    self.thumbImageView.contentMode = UIViewContentModeScaleAspectFit;
+    
+    // title
+    if (titleSize.width > rect.size.width - self.thumbImageView.frame.size.width - 20) {
+        [self.titleLabel setFrame:CGRectMake(self.thumbImageView.frame.origin.x + self.thumbImageView.frame.size.width + 5, self.thumbImageView.frame.origin.y, rect.size.width - self.thumbImageView.frame.size.width - 20, titleSize.height * 2.0f)];
+        self.titleLabel.lineBreakMode = NSLineBreakByCharWrapping;
+        self.titleLabel.numberOfLines = 2;
+    } else {
+        [self.titleLabel setFrame:CGRectMake(self.thumbImageView.frame.origin.x + self.thumbImageView.frame.size.width + 5, self.thumbImageView.frame.origin.y, rect.size.width - self.thumbImageView.frame.size.width - 20, titleSize.height)];
+        self.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+    }
+    
+    // sub title 1
+    [self.subTitleLabel setFrame:CGRectMake(self.titleLabel.frame.origin.x, self.titleLabel.frame.origin.y + self.titleLabel.frame.size.height, self.titleLabel.frame.size.width, subTitleSize.height)];
+    self.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+    
+    // sub title 2
+    [self.subTitleLabel2 setFrame:CGRectMake(self.subTitleLabel.frame.origin.x, self.subTitleLabel.frame.origin.y + self.subTitleLabel.frame.size.height, self.subTitleLabel.frame.size.width, subTitleSize.height)];
+    self.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+    
+    // set text
+    [self.titleLabel setFont:f1];
+    [self.subTitleLabel setFont:f2];
+    [self.subTitleLabel2 setFont:f2];
+    [self.titleLabel setTextColor:[UIColor blackColor]];
+    [self.subTitleLabel setTextColor:[UIColor grayColor]];
+    [self.subTitleLabel2 setTextColor:[UIColor grayColor]];
+    
+    
+    
+    // draw border
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSetStrokeColorWithColor(context, [UIColor lightGrayColor].CGColor);
     

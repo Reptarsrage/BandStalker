@@ -192,7 +192,7 @@
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
     self.edgesForExtendedLayout = UIRectEdgeAll;
-    self.tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, CGRectGetHeight(self.tabBarController.tabBar.frame), 0.0f);
+    //self.tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, CGRectGetHeight(self.tabBarController.tabBar.frame), 0.0f);
     self.tableView.rowHeight = 80.0f;
     
     NSMutableArray *artistsTemp = [self getArtists];
@@ -325,7 +325,7 @@
         }];
 
         oCell.subTitleLabel.text = [NSString stringWithFormat:@"popularity: %.0f", a.popularity];
-        oCell.subTitleLabel2.text = [NSString stringWithFormat:@"followers: %ld", a.followers];
+        oCell.subTitleLabel2.text = [NSString localizedStringWithFormat:@"followers: %ld", a.followers];
         
     }
     return cell;

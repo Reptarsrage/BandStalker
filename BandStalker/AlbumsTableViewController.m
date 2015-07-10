@@ -153,7 +153,7 @@
     while ([sharedManager.artistQueue count] > 0) {
         Artist *artist = [sharedManager.artistQueue lastObject];
         [sharedManager.artistQueue removeLastObject];
-        if (artist && ![artist.name isEqualToString:@""])
+        if (artist && ![artist.name isEqualToString:@""]) {
             //no lookup required, albums have already been fetched
             if (artist.albums != nil && [artist.albums count] > 0) {
                 for (Album *album in artist.albums) {
@@ -165,6 +165,7 @@
                     [self albumInfoCallback:album error:error];
                 }];
             }
+        }
     }
     
     for (Artist *artist in [sharedManager popDeletedArtistQueue]) {
@@ -194,8 +195,10 @@
     
     sharedManager = [SpotifyManager sharedManager];
     
+    self.tableView.allowsMultipleSelectionDuringEditing = NO;
+    
     self.edgesForExtendedLayout = UIRectEdgeAll;
-    self.tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, CGRectGetHeight(self.tabBarController.tabBar.frame), 0.0f);
+    //self.tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, CGRectGetHeight(self.tabBarController.tabBar.frame), 0.0f);
     self.tableView.rowHeight = 80.0f;
     
     NSMutableArray *albumsTemp = [self getAlbums];

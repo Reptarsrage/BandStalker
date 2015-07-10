@@ -10,9 +10,9 @@
 
 @interface customTableViewCell : UITableViewCell
 
-@property (nonatomic, weak) IBOutlet UILabel *titleLabel;
-@property (nonatomic, weak) IBOutlet UILabel *subTitleLabel;
-@property (nonatomic, weak) IBOutlet UILabel *subTitleLabel2;
-@property (nonatomic, weak) IBOutlet UIImageView *thumbImageView;
+@property (nonatomic, retain)  UILabel *titleLabel;
+@property (nonatomic, retain)  UILabel *subTitleLabel;
+@property (nonatomic, retain)  UILabel *subTitleLabel2;
+@property (nonatomic, retain)  UIImageView *thumbImageView;
 
 @end

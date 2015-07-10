@@ -10,7 +10,12 @@
 
 @implementation TrackTableViewCell
 
-
+/*
+@synthesize trackName = _trackName;
+@synthesize trackLength = _trackLength;
+@synthesize trackNumber = _trackNumber;
+*/
+ 
 - (void)awakeFromNib {
     // Initialization code
     self.trackName = [[UILabel alloc] init];
