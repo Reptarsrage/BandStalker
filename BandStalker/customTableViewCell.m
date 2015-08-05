@@ -8,7 +8,10 @@
 
 #import "customTableViewCell.h"
 
-@implementation customTableViewCell
+@implementation customTableViewCell {
+    @private
+    UILabel *tagLabel;
+}
 
 /*
 @synthesize titleLabel = _titleLabel;
@@ -23,6 +26,7 @@
     self.titleLabel = [[UILabel alloc] init];
     self.subTitleLabel = [[UILabel alloc] init];
     self.thumbImageView = [[UIImageView alloc] init];
+    tagLabel = [[UILabel alloc] init];
     
     
     [self addSubview:self.thumbImageView];
@@ -81,7 +85,29 @@
     [self.subTitleLabel setTextColor:[UIColor grayColor]];
     [self.subTitleLabel2 setTextColor:[UIColor grayColor]];
     
-    
+    // draw tag
+    if (self.albumTag != nil) {
+        UIColor *c = RGB(85, 173, 250);
+        if ([self.albumTag  isEqual: @"Single"]) {
+            c = RGB(250, 197, 50);
+        } else if([self.albumTag  isEqual: @"Compilation"]) {
+            c = RGB(243, 247, 116);
+        } else if (![self.albumTag  isEqual: @"Full Album"]) {
+            c = RGB(184, 116, 247);
+        }
+        
+        
+        CGSize tagLabelSize = [self.albumTag sizeWithAttributes:@{NSFontAttributeName: f2, NSForegroundColorAttributeName: [UIColor whiteColor]}];
+        [tagLabel setFrame:CGRectMake(self.subTitleLabel2.frame.origin.x, self.subTitleLabel2.frame.origin.y + self.subTitleLabel2.frame.size.height + 3, tagLabelSize.width + 10, tagLabelSize.height + 4)];
+        [tagLabel setFont:f2];
+        [tagLabel setTextAlignment:NSTextAlignmentCenter];
+        [tagLabel setTextColor:[UIColor whiteColor]];
+        [tagLabel setBackgroundColor:RGB(29, 185, 84)];
+        tagLabel.layer.cornerRadius = 10; // this value vary as per your desire
+        tagLabel.clipsToBounds = YES;
+        tagLabel.text =self.albumTag;
+        [self addSubview:tagLabel];
+    }
     
     // draw border
     CGContextRef context = UIGraphicsGetCurrentContext();

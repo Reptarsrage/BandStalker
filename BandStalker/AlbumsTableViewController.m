@@ -119,15 +119,15 @@
     if(diff.year > 10) {
         //ignore
         return 6;
-    } else if (diff.year > 1) {
+    } else if (diff.year > 0) {
         return 5;
     }else if (diff.month > 6) {
         return 4;
-    }else if (diff.month > 1) {
+    }else if (diff.month > 0) {
         return 3;
     }else if (diff.day > 7) {
         return 2;
-    }else if (diff.day > 1) {
+    }else if (diff.day > 0) {
         return 1;
     }else {
         return 0;
@@ -281,14 +281,15 @@
     customTableViewCell *oCell = (customTableViewCell *)cell;
     Album *a = [[albums objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     if (a.id == nil || a.image_url_small == nil) {
-        oCell.titleLabel.text = [NSString stringWithFormat:@"%@ [Unkonwn type]", a.name];
+        oCell.titleLabel.text = [NSString stringWithFormat:@"%@", a.name];
         oCell.subTitleLabel.text = @"Error retrieving data";
         oCell.subTitleLabel2.text = @"";
         oCell.thumbImageView.image = [UIImage imageNamed:@"profile_default.jpg"];
         
         
     } else {
-        oCell.titleLabel.text = [NSString stringWithFormat:@"%@ [%@]", a.name, a.type];
+        oCell.titleLabel.text = [NSString stringWithFormat:@"%@", a.name];
+        oCell.albumTag = [NSString stringWithFormat:@"%@", a.type];
         [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:a.image_url_large] queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
             if (connectionError == nil) {
                 a.cached_image = data;

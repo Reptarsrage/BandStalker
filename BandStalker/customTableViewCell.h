@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "CommonController.h"
 
 @interface customTableViewCell : UITableViewCell
 
@@ -14,5 +15,6 @@
 @property (nonatomic, retain)  UILabel *subTitleLabel;
 @property (nonatomic, retain)  UILabel *subTitleLabel2;
 @property (nonatomic, retain)  UIImageView *thumbImageView;
+@property (nonatomic, retain)  NSString *albumTag;
 
 @end

@@ -254,11 +254,13 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     
     [SPTSearch performSearchWithQuery:artist.name queryType:SPTQueryTypeArtist accessToken:SpotifyAccessToken callback:^(NSError *error, id object) {
         if (error != nil) {
+            NSLog(@"Error retrieving artist info for artist %@: %@", artist.name, error);
             [controller artistInfoCallback:NO artist:artist error:error];
         } else {
             SPTListPage *page = object;
             
             if ([page.items count] <= 0) {
+                NSLog(@"No results found for artist %@.", artist.name);
                 [controller artistInfoCallback:NO artist:artist error:[NSError errorWithDomain:@"No results found" code:404 userInfo:nil]];
             } else {
                 
@@ -288,6 +290,9 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     [SPTArtist artistsWithURIs:artistUIds session:SpotifySession callback:^(NSError *error, id object) {
         if (error != nil) {
             NSLog(@"Error retrieving artist info for artists: %@", error);
+            if (error.code == 401) {
+                [self getAllArtistInfo:artistUIds forController:controller];
+            }
             return;
         }
         
@@ -372,7 +377,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
         if (page.nextPageURL != nil) {
             NSURLRequest *nextRequest = [page createRequestForNextPageWithAccessToken:SpotifyAccessToken error:&error];
             
-            if (error != nil || error == NULL) {
+            if (error == nil || error == NULL) {
                 [self getAllAlbumsForArtist:uid pageURL:nextRequest withAlbumUris:uris withCallback:callback];
             } else {
                 NSLog(@"Error retrieving the next page. Failed to create request: %@", error);
@@ -380,6 +385,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
         } else {
             if ([uris count] != page.totalListLength) {
                 NSLog(@"Error retrieving albums. %lu albums parsed does not equal %luld total albums in list.", (unsigned long)[uris count], (unsigned long)page.totalListLength);
+                [self  getAllAlbumsForArtist:uid pageURL:nextPage withAlbumUris:uris withCallback:callback];
             }
             [self getDetailedAlbumInfo:uris withPage:nil withCallback:callback];
         }
@@ -517,7 +523,7 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
                     aindex = NSNotFound;
                 } else {
                     aindex = [((Artist *)[allArtists objectAtIndex:index]).albums  indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-                        if ([((Album *)obj).id isEqualToString:a.id]) {
+                        if ([((Album *)obj).name isEqualToString:a.name]) { // don't compare ids, you will get duplicates
                             *stop = YES;
                             return YES;
                         }

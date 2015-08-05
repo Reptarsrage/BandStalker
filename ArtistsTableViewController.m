@@ -116,7 +116,7 @@
         
         [self showEmptyTableLabel];
         
-        [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:[NSIndexPath indexPathForRow:index inSection:sect], nil] withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:sect] withRowAnimation:UITableViewRowAnimationNone];
 
         
     } else {
@@ -141,21 +141,17 @@
 
 - (NSMutableArray *)getArtists {
     NSMutableArray *ret = [[NSMutableArray alloc] init];
+    NSArray *testArtists = [NSArray arrayWithObjects:@"Future"  ,@"Taylor Swift"  ,@"The Weeknd"  ,@"Fetty Wap"  ,@"Ed Sheeran"  ,@"OMI"  ,@"Meek Mill"  ,@"Maroon 5"  ,@"Luke Bryan"  ,@"Drake"  ,@"Sam Hunt"  ,@"Nicki Minaj"  ,@"5 Seconds Of Summer"  ,@"Tyrese"  ,@"Silento"  ,@"Fall Out Boy"  ,@"Tame Impala"  ,@"Rachel Platten"  ,@"Jason Isbell"  ,@"Alan Jackson"  ,@"Meghan Trainor"  ,@"WALK THE MOON"  ,@"Andy Grammer"  ,@"Wiz Khalifa"  ,@"Selena Gomez"  ,@"Kendrick Lamar"  ,@"Jason Derulo"  ,@"Zac Brown Band"  ,@"Demi Lovato"  ,@"Sam Smith"  ,@"Fifth Harmony"  ,@"Bruno Mars"  ,@"Little Big Town"  ,@"Chris Brown"  ,@"Ariana Grande"  ,@"Justin Bieber"  ,@"Florida Georgia Line"  ,@"Eminem"  ,@"Rihanna"  ,@"Pitbull"  ,@"Eric Church"  ,@"Imagine Dragons"  ,@"Katy Perry"  ,@"Blake Shelton"  ,@"Kidz Bop Kids"  ,@"Jason Aldean"  ,@"Shawn Mendes"  ,@"Rae Sremmurd"  ,@"Sia"  ,@"David Guetta"  ,@"twenty one pilots"  ,@"DJ Snake"  ,@"Tove Lo"  ,@"Big Sean"  ,@"J. Cole"  ,@"Ellie Goulding"  ,@"A$AP Rocky"  ,@"Charlie Puth"  ,@"Brantley Gilbert"  ,@"Kid Ink"  ,@"Joan Sebastian"  ,@"Mark Ronson"  ,@"Rich Homie Quan"  ,@"One Direction"  ,@"Anthony Brown and; group therAPy"  ,@"Beyonce"  ,@"Thomas Rhett"  ,@"X Ambassadors"  ,@"Trey Songz"  ,@"Flo Rida"  ,@"Calvin Harris"  ,@"Kenny Chesney"  ,@"Keith Urban"  ,@"Mumford and; Sons"  ,@"Hozier"  ,@"Metallica"  ,@"Major Lazer"  ,@"Omarion"  ,@"Kid Rock"  ,@"Monty"  ,@"Skrillex"  ,@"Miley Cyrus"  ,@"Karen Clark-Sheard"  ,@"Chris Janson"  ,@"Jidenna"  ,@"Jeremih"  ,@"Michael Jackson"  ,@"Nick Jonas"  ,@"Miguel"  ,@"Diplo"  ,@"Canaan Smith"  ,@"George Ezra"  ,@"Kelly Clarkson"  ,@"Tori Kelly"  ,@"Cole Swindell"  ,@"Carrie Underwood"  ,@"T-Wayne"  ,@"Miranda Lambert"  ,@"Brett Eldredge"  ,@"Adam Lambert"  ,nil];
     
-    Artist *a1 = [[Artist alloc] init];
-    a1.name = @"Modest Mouse";
-    //[ret addObject:a1];
-    
-    Artist *a2 = [[Artist alloc] init];
-    a2.name = @"Ninja Sex Party";
-    //[ret addObject:a2];
-    
-    Artist *a3 = [[Artist alloc] init];
-    a3.name = @"Disturbed";
-    //[ret addObject:a3];
+    for (NSString * a in testArtists) {
+        Artist *a1 = [[Artist alloc] init];
+        a1.name = a;
+        [ret addObject:a1];
+        
+    }
     
     for (MPMediaItemCollection *collection in [[MPMediaQuery artistsQuery] collections]) {
-        a1 = [[Artist alloc] init];
+        Artist *a1 = [[Artist alloc] init];
         a1.name = [[collection representativeItem] valueForProperty:MPMediaItemPropertyArtist];
         //[ret addObject:a1];
     }

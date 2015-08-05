@@ -198,11 +198,11 @@
             </objects>
             <point key="canvasLocation" x="638" y="470"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Albums-->
         <scene sceneID="cgy-xR-Qd3">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="euJ-DO-4aW" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" systemItem="history" id="frQ-E6-Nqk"/>
+                    <tabBarItem key="tabBarItem" title="Albums" image="Albums" id="frQ-E6-Nqk"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="6zR-1V-g8S">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -217,11 +217,11 @@
             </objects>
             <point key="canvasLocation" x="1382" y="511"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Artists-->
         <scene sceneID="ubh-0q-Bf8">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ZGS-9E-Ccm" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" systemItem="favorites" id="xUD-gY-b6x"/>
+                    <tabBarItem key="tabBarItem" title="Artists" image="Artists" id="xUD-gY-b6x"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="iuL-7g-pZd">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -291,4 +291,8 @@
             <point key="canvasLocation" x="3048" y="651"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Albums" width="25" height="25"/>
+        <image name="Artists" width="25" height="25"/>
+    </resources>
 </document>
