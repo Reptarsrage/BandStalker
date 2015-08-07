@@ -86,7 +86,7 @@
     [self.subTitleLabel2 setTextColor:[UIColor grayColor]];
     
     // draw tag
-    if (self.albumTag != nil) {
+    /*if (self.albumTag != nil) {
         UIColor *c = RGB(85, 173, 250);
         if ([self.albumTag  isEqual: @"Single"]) {
             c = RGB(250, 197, 50);
@@ -107,7 +107,7 @@
         tagLabel.clipsToBounds = YES;
         tagLabel.text =self.albumTag;
         [self addSubview:tagLabel];
-    }
+    }*/
     
     // draw border
     CGContextRef context = UIGraphicsGetCurrentContext();

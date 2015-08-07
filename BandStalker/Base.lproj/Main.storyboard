@@ -146,6 +146,34 @@
             </objects>
             <point key="canvasLocation" x="3860" y="-168"/>
         </scene>
+        <!--Event-->
+        <scene sceneID="ukh-lo-xr7">
+            <objects>
+                <tableViewController title="Event" id="EFO-pg-Rmj" customClass="EventsTableViewController" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Uya-SS-vTn">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="customTableViewCell" rowHeight="82" id="fOI-tm-iTW" customClass="customTableViewCell">
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="fOI-tm-iTW" id="8Cj-Oo-QXV">
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="EFO-pg-Rmj" id="Sd1-6I-Oa1"/>
+                            <outlet property="delegate" destination="EFO-pg-Rmj" id="z2l-3x-jFp"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Events" id="0Yb-eE-3PG"/>
+                    <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="i39-d2-5sm" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2244" y="1308"/>
+        </scene>
         <!--Albums-->
         <scene sceneID="CSv-8K-97Z">
             <objects>
@@ -177,7 +205,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Js9-7j-euN" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2236" y="651"/>
+            <point key="canvasLocation" x="2260" y="595"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="HAn-dk-VgI">
@@ -192,6 +220,7 @@
                     <connections>
                         <segue destination="ZGS-9E-Ccm" kind="relationship" relationship="viewControllers" id="ZkP-lZ-TGc"/>
                         <segue destination="euJ-DO-4aW" kind="relationship" relationship="viewControllers" id="9dn-V8-ftt"/>
+                        <segue destination="Zic-3n-bRE" kind="relationship" relationship="viewControllers" id="24C-HH-EYS"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ARH-wN-c8x" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -215,7 +244,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zJR-z2-lBd" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1382" y="511"/>
+            <point key="canvasLocation" x="1432" y="559"/>
         </scene>
         <!--Artists-->
         <scene sceneID="ubh-0q-Bf8">
@@ -290,9 +319,29 @@
             </objects>
             <point key="canvasLocation" x="3048" y="651"/>
         </scene>
+        <!--Events-->
+        <scene sceneID="Z7Y-nH-Hgn">
+            <objects>
+                <navigationController title="Events" automaticallyAdjustsScrollViewInsets="NO" id="Zic-3n-bRE" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Events" image="Events" id="aqD-5E-6Pe"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="UBn-NH-EfJ">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="EFO-pg-Rmj" kind="relationship" relationship="rootViewController" id="gVX-ko-y5z"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="hlw-jY-VRA" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1432" y="1308"/>
+        </scene>
     </scenes>
     <resources>
         <image name="Albums" width="25" height="25"/>
         <image name="Artists" width="25" height="25"/>
+        <image name="Events" width="25" height="25"/>
     </resources>
 </document>

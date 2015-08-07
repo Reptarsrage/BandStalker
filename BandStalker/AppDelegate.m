@@ -23,9 +23,7 @@
     [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:600.0]; // 10min
     
     sharedManager = [SpotifyManager sharedManager];
-    while (![sharedManager login]) {
-        NSLog(@"Login failure. Retrying...");
-    }
+    [sharedManager login];
     
     UIUserNotificationType types = UIUserNotificationTypeBadge | UIUserNotificationTypeAlert;
     

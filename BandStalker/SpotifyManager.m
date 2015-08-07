@@ -20,6 +20,9 @@
     @private
     NSMutableArray *allArtists;
     NSMutableArray *deletedArtists;
+    BOOL needsLogin;
+    NSInteger loginTryCount;
+    NSLock *loginLock;
 }
 
 @synthesize expires;
@@ -178,8 +181,41 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     }
 }
 
-// Logs the app in using my account and credentials, expires in awhile
 - (BOOL)login {
+    CFUUIDRef uuidRef = CFUUIDCreate(NULL);
+    CFStringRef uuidStringRef = CFUUIDCreateString(NULL, uuidRef);
+    CFRelease(uuidRef);
+    if ([self loginValidate]) {
+        return YES;
+    }
+    
+    return [self login:(__bridge NSString *)uuidStringRef];
+}
+
+// Logs the app in using my account and credentials, expires in awhile
+- (BOOL)login:(NSString *)UUID {
+    [loginLock tryLock];
+    
+    if (loginLock.name == nil) {
+        loginLock.name = UUID;
+    } else if (![loginLock.name isEqualToString:UUID]) {
+        [loginLock unlock];
+        return NO;
+    }
+    
+    if (!needsLogin) {
+        [loginLock unlock];
+        return NO;
+    }
+    
+    loginTryCount++;
+    NSLog(@"!!!!!%ld", (long)loginTryCount);
+    
+    if (loginTryCount == 5) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Login Error" message:[NSString stringWithFormat:@"Unable to connect to the network."] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
+    }
+    
     NSURL *loginUrl = [NSURL URLWithString:@"https://accounts.spotify.com/api/token"];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:loginUrl
                                                            cachePolicy:NSURLRequestReturnCacheDataElseLoad
@@ -211,6 +247,16 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     
     if (error) {
         NSLog(@"Error logging in: %@",error);
+        if (loginTryCount < 5) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self login:UUID];
+            });
+        } else {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self login:UUID];
+            });
+        }
+        
         return NO;
     }
     
@@ -219,31 +265,65 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     
     if (error) {
         NSLog(@"Error parsing login response: %@",error);
+        if (loginTryCount < 5) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self login:UUID];
+            });
+        } else {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self login:UUID];
+            });
+        }
         return NO;
     }
     
     SpotifyAccessToken = [data valueForKey:@"access_token"];
-    expires = (long)[[NSDate date] timeIntervalSince1970] + [[data valueForKey:@"expires_in"] longValue];
+    expires = (long)[[NSDate date] timeIntervalSince1970];
+    expires += [[data valueForKey:@"expires_in"] longValue];
     
     if (!SpotifyAccessToken) {
         NSLog(@"Error parsing login response: no token");
+        if (loginTryCount < 5) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self login:UUID];
+            });
+        } else {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self login:UUID];
+            });
+        }
         return NO;
     }
     
     if (!expires) {
         NSLog(@"Error parsing login response: no expiration");
+        if (loginTryCount < 5) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self login:UUID];
+            });
+        } else {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self login:UUID];
+            });
+        }
         return NO;
     }
     
     SpotifySession = [[SPTSession alloc] initWithUserName:@"reptarsrage" accessToken:SpotifyAccessToken expirationTimeInterval:expires];
     
+    needsLogin = NO;
+    loginTryCount = 0;
+    [loginLock unlock];
     return YES;
 }
 
 // gets uid for one artist
 - (void)retrieveArtistInfoFromSpotify:(Artist *)artist forController:(ArtistsTableViewController *)controller {
-    if (! [self loginValidate]) {
-        [self login];
+    if (![self login]) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self retrieveArtistInfoFromSpotify:artist forController:controller];
+        });
+        return;
     }
     
     if (allArtists == nil)
@@ -251,13 +331,40 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     if (artistQueue == nil)
         artistQueue = [NSMutableArray arrayWithCapacity:1];
     
+    NSError *error;
+    NSURLRequest *req = [SPTSearch createRequestForSearchWithQuery:artist.name queryType:SPTQueryTypeArtist accessToken:SpotifyAccessToken error:&error];
+    if (error != nil) {
+        NSLog(@"Error creating request for artist %@: %@", artist.name, error);
+        return;
+    }
     
-    [SPTSearch performSearchWithQuery:artist.name queryType:SPTQueryTypeArtist accessToken:SpotifyAccessToken callback:^(NSError *error, id object) {
+    
+    [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        NSError *error = connectionError;
         if (error != nil) {
-            NSLog(@"Error retrieving artist info for artist %@: %@", artist.name, error);
-            [controller artistInfoCallback:NO artist:artist error:error];
+                NSLog(@"Error retrieving artist info for artist %@: %@", artist.name, error);
+                [controller artistInfoCallback:NO artist:artist error:error];
         } else {
-            SPTListPage *page = object;
+            NSMutableDictionary *JSONdata = [NSJSONSerialization JSONObjectWithData:data
+                                                                        options:NSJSONReadingMutableContainers error:&error];
+            if (error != nil) {
+                NSLog(@"Error parsing response for artist %@: %@", artist.name, error);
+                return;
+            }
+            
+            if (JSONdata[@"error"] != nil) {
+                if ([JSONdata[@"error"][@"status"] longValue] == 429) {
+                    NSLog(@"Rate limiting applied.");
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        [self retrieveArtistInfoFromSpotify:artist forController:controller];
+                    });
+                }else {
+                    NSLog(@"Error retrieving artist %@: %@ %@", artist.name, JSONdata[@"error"][@"status"], JSONdata[@"error"][@"message"]);
+                }
+                return;
+            }
+            
+            SPTListPage *page = [SPTListPage listPageFromDecodedJSON:JSONdata[@"artists"] expectingPartialChildren:NO rootObjectKey:nil error:&error];
             
             if ([page.items count] <= 0) {
                 NSLog(@"No results found for artist %@.", artist.name);
@@ -283,51 +390,79 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 
 
 - (void)getAllArtistInfo:(NSMutableArray *)artistUIds forController:(ArtistsTableViewController *)controller{
-    if (! [self loginValidate]) {
-        [self login];
+    if (![self login]) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self getAllArtistInfo:artistUIds forController:controller];
+        });
+        return;
     }
     
-    [SPTArtist artistsWithURIs:artistUIds session:SpotifySession callback:^(NSError *error, id object) {
+    NSError *error;
+    NSURLRequest *req = [SPTArtist createRequestForArtists:artistUIds withAccessToken:SpotifyAccessToken error:&error];
+    if (error != nil) {
+        NSLog(@"Error creating request for artists: %@", error);
+        return;
+    }
+    
+    [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
         if (error != nil) {
             NSLog(@"Error retrieving artist info for artists: %@", error);
-            if (error.code == 401) {
-                [self getAllArtistInfo:artistUIds forController:controller];
+            return;
+        }
+        
+        NSMutableDictionary *JSONdata = [NSJSONSerialization JSONObjectWithData:data
+                                                                        options:NSJSONReadingMutableContainers error:&error];
+        if (error != nil) {
+            NSLog(@"Error parsing response for artists: %@", error);
+            return;
+        }
+        
+        
+        if (JSONdata[@"error"] != nil) {
+            if ([JSONdata[@"error"][@"status"] longValue] == 429) {
+                NSLog(@"Rate limiting applied.");
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self getAllArtistInfo:artistUIds forController:controller];
+                });
+            } else {
+                NSLog(@"Error retrieving artists: %@ %@", JSONdata[@"error"][@"status"], JSONdata[@"error"][@"message"]);
             }
             return;
         }
         
-        NSArray *results = object;
+        
+        NSArray *results = JSONdata[@"artists"];
         
         if ([results count] != [artistUIds count]) {
             NSLog(@"Error retrieving artist info : %@", @"No results found");
             return;
         }
         
-        for (SPTArtist *a in results) {
+        for (NSMutableDictionary *a in results) {
             Artist *a1 = nil;
             NSUInteger index;
             index = [allArtists indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-                if ([[(Artist *)obj name] isEqualToString:a.name]) {
+                if ([[(Artist *)obj name] isEqualToString:a[@"name"]]) {
                     *stop = YES;
                     return YES;
                 }
                 return NO;
             }];
             
-            if (index != NSNotFound && a.uri != nil) {
+            if (index != NSNotFound && a[@"uri"] != nil) {
                 a1 = [allArtists objectAtIndex:index];
-                a1.image_url_large = a.largestImage.imageURL;
-                a1.image_url_small = a.smallestImage.imageURL;
-                a1.image_url_med = nil;
-                a1.popularity = a.popularity;
-                a1.followers = a.followerCount;
-                a1.image_aspect_ratio = a.largestImage.size.width / a.largestImage.size.height;
+                a1.image_url_large = [NSURL URLWithString:a[@"images"][0][@"url"]];
+                a1.image_url_small = [NSURL URLWithString:a[@"images"][2][@"url"]];
+                a1.image_url_med = [NSURL URLWithString:a[@"images"][1][@"url"]];
+                a1.popularity = [a[@"popularity"] doubleValue];
+                a1.followers = [a[@"followers"][@"total"] longValue];
+                a1.image_aspect_ratio = [a[@"images"][0][@"width"] doubleValue] / [a[@"images"][0][@"height"] doubleValue];
                 
                 //update in table
                 [controller artistInfoCallback:YES artist:a1 error:nil];
                 
             } else {
-                NSLog(@"Error updating artist info for %@: %@", a.name, @"Artist not found in table");
+                NSLog(@"Error updating artist info for %@: %@", a[@"name"], @"Artist not found in table");
             }
         }
     }];
@@ -335,8 +470,11 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 
 
 -(void)getAllAlbumsForArtist:(NSString *)uid pageURL:(NSURLRequest *)nextPage withAlbumUris:(NSMutableArray *)uris withCallback:(SpotifyAlbumInfoCallback)callback {
-    if (! [self loginValidate]) {
-        [self login];
+    if (![self login]) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self getAllAlbumsForArtist:uid pageURL:nextPage withAlbumUris:uris withCallback:callback];
+        });
+        return;
     }
     
     NSError *error = nil;
@@ -351,6 +489,11 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
         uris = [NSMutableArray arrayWithCapacity:1];
     }
     
+    if (error != nil) {
+        NSLog(@"Error creating request for albums: %@", error);
+        return;
+    }
+    
     [NSURLConnection sendAsynchronousRequest:req queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
         if (error != nil) {
             if ([error code] == 1001) { // TIMEOUT
@@ -358,7 +501,26 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             } else {
                 NSLog(@"Error retrieving album info for artist with id %@: %@", uid, error);
             }
-            
+            return;
+        }
+        
+        NSMutableDictionary *JSONdata = [NSJSONSerialization JSONObjectWithData:data
+                                                                        options:NSJSONReadingMutableContainers error:&error];
+        
+        if (error != nil) {
+            NSLog(@"Error parsing albums data for artist with id %@: %@", uid, error);
+            return;
+        }
+        
+        if (JSONdata[@"error"] != nil) {
+            if ([JSONdata[@"error"][@"status"] longValue] == 429) {
+                NSLog(@"Rate limiting applied.");
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self getAllAlbumsForArtist:uid pageURL:nextPage withAlbumUris:uris withCallback:callback];
+                });
+            } else {
+                NSLog(@"Error retrieving album info for artist with id %@: %@ %@", uid, JSONdata[@"error"][@"status"], JSONdata[@"error"][@"message"]);
+            }
             return;
         }
         
@@ -394,8 +556,23 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 
 
 -(void)getDetailedAlbumInfo:(NSMutableArray *)uris withPage:(NSURLRequest *)nextPage withCallback:(SpotifyAlbumInfoCallback)callback {
-    if (! [self loginValidate]) {
-        [self login];
+    if (![self login]) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self getDetailedAlbumInfo:uris withPage:nextPage withCallback:callback];
+        });
+        return;
+    }
+    
+    if (uris.count == 0) {
+        return;
+    }
+    
+    if (uris.count > 20) {
+        NSMutableArray *uris1 = [NSMutableArray arrayWithArray:[uris subarrayWithRange:NSMakeRange(0, 20)]];
+        NSMutableArray *uris2 = [NSMutableArray arrayWithArray:[uris subarrayWithRange:NSMakeRange(20, uris.count - 20)]];
+        [self getDetailedAlbumInfo:uris1 withPage:nextPage withCallback:callback];
+        [self getDetailedAlbumInfo:uris2 withPage:nextPage withCallback:callback];
+        return;
     }
     
     NSError *error;
@@ -417,16 +594,29 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
             
             return;
         }
-        
-        NSArray *json = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
+
+        NSMutableDictionary *JSONdata = [NSJSONSerialization JSONObjectWithData:data
+                                                                        options:NSJSONReadingMutableContainers error:&error];
+   
         if (error != nil) {
             NSLog(@"Error parsing JSON data for albums.");
             callback (nil, error);
             return;
         }
-        NSArray *albums = [SPTAlbum albumsFromDecodedJSON:json error:&error];
         
+        if (JSONdata[@"error"] != nil) {
+            if ([JSONdata[@"error"][@"status"] longValue] == 429) {
+                NSLog(@"Rate limiting applied.");
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self getDetailedAlbumInfo:uris withPage:nextPage withCallback:callback];
+                });
+            } else {
+                NSLog(@"Error retrieving album info for albums (%lu): %@ %@", (unsigned long)uris.count,JSONdata[@"error"][@"status"] , JSONdata[@"error"][@"message"]);
+            }
+            return;
+        }
         
+        NSArray *albums = [SPTAlbum albumsFromDecodedJSON:JSONdata error:&error];
         
         if (error != nil) {
             NSLog(@"Error parsing detailed album data for multiple albums: %@", error);
@@ -548,8 +738,11 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
 }
 
 -(void)getAllTracksForAlbum:(Album *)album withCallback:(SpotifyAlbumInfoCallback)callback {
-    if (! [self loginValidate]) {
-        [self login];
+    if (![self login]) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self getAllTracksForAlbum:album withCallback:callback];
+        });
+        return;
     }
     
     NSURLRequest *req;
@@ -565,6 +758,26 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
                 [self getAllTracksForAlbum:album withCallback:callback];
             } else {
                 NSLog(@"Error retrieving tack info for album %@: %@", album.name, error);
+            }
+            return;
+        }
+        
+        NSMutableDictionary *JSONdata = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+        
+        if (error != nil) {
+            NSLog(@"Error parsing JSON data for tracks: %@", error);
+            callback (nil, error);
+            return;
+        }
+        
+        if (JSONdata[@"error"] != nil) {
+            if ([JSONdata[@"error"][@"status"] longValue] == 429) {
+                NSLog(@"Rate limiting applied.");
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self getAllTracksForAlbum:album withCallback:callback];
+                });
+            } else {
+                NSLog(@"Error retrieving track info for album: %@ %@", JSONdata[@"error"][@"status"], JSONdata[@"error"][@"message"]);
             }
             return;
         }
@@ -620,6 +833,9 @@ const NSString * client_secret = @"75a5b55e12b64fd7b82c6870beba34c3";
     if (self = [super init]) {
         // default values
         //someProperty = @"Default Property Value";
+        needsLogin = YES;
+        loginTryCount = 0;
+        loginLock = [[NSLock alloc] init];
     }
     return self;
 }

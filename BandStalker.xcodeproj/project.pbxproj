@@ -22,7 +22,10 @@
 		845998401B1FB07D00B0B659 /* AddArtist.m in Sources */ = {isa = PBXBuildFile; fileRef = 8459983F1B1FB07D00B0B659 /* AddArtist.m */; };
 		845998421B1FDBA300B0B659 /* Spotify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 845998411B1FDBA300B0B659 /* Spotify.framework */; };
 		845EA6571B4DEB3F00491A06 /* CommonController.m in Sources */ = {isa = PBXBuildFile; fileRef = 845EA6561B4DEB3F00491A06 /* CommonController.m */; };
+		84783B7F1B743255008A61D2 /* bandsInTownManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 84783B7E1B743255008A61D2 /* bandsInTownManager.m */; };
+		84783B821B743852008A61D2 /* Event.m in Sources */ = {isa = PBXBuildFile; fileRef = 84783B811B743852008A61D2 /* Event.m */; };
 		8486BC111B72CBE400A6F20D /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8486BC101B72CBE400A6F20D /* Media.xcassets */; };
+		849533451B7441AB007D1149 /* EventsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 849533441B7441AB007D1149 /* EventsTableViewController.m */; };
 		8499449C1B2032080080733F /* customTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8499449B1B2032080080733F /* customTableViewCell.m */; };
 		8499449E1B3B570E0080733F /* profile_default.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8499449D1B3B570E0080733F /* profile_default.jpg */; };
 		849944A11B3CEBD10080733F /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 849944A01B3CEBD10080733F /* Track.m */; };
@@ -70,7 +73,13 @@
 		845998411B1FDBA300B0B659 /* Spotify.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Spotify.framework; sourceTree = "<group>"; };
 		845EA6551B4DEB3F00491A06 /* CommonController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonController.h; sourceTree = "<group>"; };
 		845EA6561B4DEB3F00491A06 /* CommonController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommonController.m; sourceTree = "<group>"; };
+		84783B7D1B743255008A61D2 /* bandsInTownManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bandsInTownManager.h; sourceTree = "<group>"; };
+		84783B7E1B743255008A61D2 /* bandsInTownManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bandsInTownManager.m; sourceTree = "<group>"; };
+		84783B801B743852008A61D2 /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Event.h; path = ../Event.h; sourceTree = "<group>"; };
+		84783B811B743852008A61D2 /* Event.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Event.m; path = ../Event.m; sourceTree = "<group>"; };
 		8486BC101B72CBE400A6F20D /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
+		849533431B7441AB007D1149 /* EventsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventsTableViewController.h; sourceTree = "<group>"; };
+		849533441B7441AB007D1149 /* EventsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventsTableViewController.m; sourceTree = "<group>"; };
 		8499449A1B2032080080733F /* customTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = customTableViewCell.h; sourceTree = "<group>"; };
 		8499449B1B2032080080733F /* customTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = customTableViewCell.m; sourceTree = "<group>"; };
 		8499449D1B3B570E0080733F /* profile_default.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = profile_default.jpg; sourceTree = "<group>"; };
@@ -126,6 +135,8 @@
 			children = (
 				8459982F1B1F914100B0B659 /* ArtistsTableViewController.h */,
 				845998301B1F914100B0B659 /* ArtistsTableViewController.m */,
+				84783B801B743852008A61D2 /* Event.h */,
+				84783B811B743852008A61D2 /* Event.m */,
 				845EA6551B4DEB3F00491A06 /* CommonController.h */,
 				845EA6561B4DEB3F00491A06 /* CommonController.m */,
 				845998411B1FDBA300B0B659 /* Spotify.framework */,
@@ -133,6 +144,8 @@
 				8459983C1B1FAC1C00B0B659 /* AddArtistViewController.m */,
 				8459980D1B1F846000B0B659 /* AppDelegate.h */,
 				8459980E1B1F846000B0B659 /* AppDelegate.m */,
+				84783B7D1B743255008A61D2 /* bandsInTownManager.h */,
+				84783B7E1B743255008A61D2 /* bandsInTownManager.m */,
 				845998131B1F846000B0B659 /* Main.storyboard */,
 				8486BC101B72CBE400A6F20D /* Media.xcassets */,
 				849944AE1B3D6BAA0080733F /* TrackTableViewCell.h */,
@@ -147,12 +160,14 @@
 				8459983F1B1FB07D00B0B659 /* AddArtist.m */,
 				845998381B1FA5E400B0B659 /* AlbumsTableViewController.h */,
 				845998391B1FA5E400B0B659 /* AlbumsTableViewController.m */,
+				849533431B7441AB007D1149 /* EventsTableViewController.h */,
+				849533441B7441AB007D1149 /* EventsTableViewController.m */,
 				8499449F1B3CEBD10080733F /* Track.h */,
 				849944A01B3CEBD10080733F /* Track.m */,
 				845998321B1F93AF00B0B659 /* Artist.h */,
+				845998331B1F93AF00B0B659 /* Artist.m */,
 				845998351B1F98F800B0B659 /* Album.h */,
 				845998361B1F98F800B0B659 /* Album.m */,
-				845998331B1F93AF00B0B659 /* Artist.m */,
 				849944A51B3D35E70080733F /* SpotifyManager.h */,
 				849944A61B3D35E80080733F /* SpotifyManager.m */,
 				845998161B1F846000B0B659 /* Images.xcassets */,
@@ -297,10 +312,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				8499449C1B2032080080733F /* customTableViewCell.m in Sources */,
+				84783B7F1B743255008A61D2 /* bandsInTownManager.m in Sources */,
 				849944B01B3D6BAA0080733F /* TrackTableViewCell.m in Sources */,
 				8459983A1B1FA5E400B0B659 /* AlbumsTableViewController.m in Sources */,
 				8419383B1B44ACD7004A76BF /* AlbumDrilldownTableViewController.m in Sources */,
 				845998311B1F914100B0B659 /* ArtistsTableViewController.m in Sources */,
+				84783B821B743852008A61D2 /* Event.m in Sources */,
 				845EA6571B4DEB3F00491A06 /* CommonController.m in Sources */,
 				849944A11B3CEBD10080733F /* Track.m in Sources */,
 				8459983D1B1FAC1C00B0B659 /* AddArtistViewController.m in Sources */,
@@ -310,6 +327,7 @@
 				845998371B1F98F800B0B659 /* Album.m in Sources */,
 				8459980C1B1F846000B0B659 /* main.m in Sources */,
 				849944A71B3D35E80080733F /* SpotifyManager.m in Sources */,
+				849533451B7441AB007D1149 /* EventsTableViewController.m in Sources */,
 				845998341B1F93AF00B0B659 /* Artist.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

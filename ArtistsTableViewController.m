@@ -13,10 +13,12 @@
 #import "ArtistDrilldownTableViewController.h"
 #import "customTableViewCell.h"
 #import "AlbumsTableViewController.h"
+#import "bandsInTownManager.h"
 
 @interface ArtistsTableViewController () {
     @private
     SpotifyManager *sharedManager;
+    bandsInTownManager * bandSharedManager;
     NSMutableArray *artists;
     UIView *errorLabel;
     NSInteger artistCount;
@@ -117,7 +119,8 @@
         [self showEmptyTableLabel];
         
         [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:sect] withRowAnimation:UITableViewRowAnimationNone];
-
+        
+        [bandSharedManager.artistQueue addObject:artist];
         
     } else {
         NSLog(@"Error retrieving artist info for %@: %@", artist.name, error);
@@ -184,6 +187,7 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
     sharedManager = [SpotifyManager sharedManager];
+    bandSharedManager = [bandsInTownManager sharedManager];
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
@@ -258,6 +262,8 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         //add code here for when you hit delete
         [sharedManager removeArtist:[[artists objectAtIndex:indexPath.section] objectAtIndex:indexPath.row]];
+        [bandSharedManager removeArtist:[[artists objectAtIndex:indexPath.section] objectAtIndex:indexPath.row]];
+        
         [[artists objectAtIndex:indexPath.section] removeObjectAtIndex:indexPath.row];
         artistCount--;
         [self showEmptyTableLabel];
@@ -267,6 +273,13 @@
             sharedManager.newItems = NO;
             UITabBarController *tbc = self.tabBarController;
             UITabBarItem *tbi = (UITabBarItem*)[[[tbc tabBar] items] objectAtIndex:1];
+            [tbi setBadgeValue:nil];
+        }
+        
+        if ([[bandSharedManager artistQueue] count] == 0) {
+            bandSharedManager.newItems = NO;
+            UITabBarController *tbc = self.tabBarController;
+            UITabBarItem *tbi = (UITabBarItem*)[[[tbc tabBar] items] objectAtIndex:2];
             [tbi setBadgeValue:nil];
         }
     }
