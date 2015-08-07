@@ -17,6 +17,7 @@
 #import "CommonController.h"
 
 typedef void (^SpotifyAlbumInfoCallback) (Album *album, NSError *error);
+typedef void (^SpotifyAlbumArtCallback) (NSData *data, NSError *error);
 
 @interface SpotifyManager : NSObject  {
     NSTimeInterval expires;
@@ -38,6 +39,7 @@ typedef void (^SpotifyAlbumInfoCallback) (Album *album, NSError *error);
 -(void)getAllAlbumsForArtist:(NSString *)uid pageURL:(NSURLRequest *)nextPage withAlbumUris:(NSMutableArray *)uris withCallback:(SpotifyAlbumInfoCallback)callback;
 -(void)getAllTracksForAlbum:(Album *)album withCallback:(SpotifyAlbumInfoCallback)callback;
 -(BOOL)makeBackGroundRequest:(NSInteger)capacity withCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+-(void)getArtworkAsync:(NSURL *)url withCallback:(SpotifyAlbumArtCallback)callback;
 
 + (id)sharedManager;
 

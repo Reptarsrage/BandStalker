@@ -86,6 +86,14 @@
 
     // add all info
     imageView.image = [UIImage imageWithData:self.artist.cached_image];
+    [sharedManager getArtworkAsync:self.artist.image_url_large withCallback:^(NSData *data, NSError *error) {
+        if (error) {
+            NSLog(@"Error retrieving art for artist %@: %@", self.artist.name, error);
+        } else if (data) {
+            imageView.image = [UIImage imageWithData:data];
+        }
+    }];
+    
     titleView.text = self.artist.name;
     subTitleView.text = [NSString localizedStringWithFormat:@"Popularity: %0.f", self.artist.popularity];
     subTitleView1.text = [NSString localizedStringWithFormat:@"Followers: %ld", self.artist.followers];
@@ -159,6 +167,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.tableView.allowsMultipleSelectionDuringEditing = NO;
+    self.edgesForExtendedLayout = UIRectEdgeAll;
+
     
     sharedManager = [SpotifyManager sharedManager];
     [self drawHeader];
@@ -263,13 +275,13 @@
         
         // image (special)
         if (album.cached_image == nil) {
-            [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:album.image_url_large] queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                if (connectionError == nil) {
-                    album.cached_image = data;
-                    imageView.image = [UIImage imageWithData:album.cached_image];
-                } else {
-                    NSLog(@"Error retrieving album art for album %@: %@", album.name, connectionError);
+            [sharedManager getArtworkAsync:album.image_url_large withCallback:^(NSData *data, NSError *error) {
+                if (error) {
+                    NSLog(@"Error retrieving album art for album %@: %@", album.name, error);
                     imageView.image = [UIImage imageNamed:@"profile_default.jpg"];
+                } else if (data) {
+                    album.cached_image = data;
+                    imageView.image = [UIImage imageWithData:data];
                 }
             }];
         } else {

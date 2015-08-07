@@ -73,6 +73,13 @@
     
     // add all info
     imageView.image = [UIImage imageWithData:self.album.cached_image];
+    [sharedManager getArtworkAsync:self.album.image_url_large withCallback:^(NSData *data, NSError *error) {
+        if (error) {
+            NSLog(@"Error retrieving album art for album %@: %@", self.album.name, error);
+        } else if (data) {
+            imageView.image = [UIImage imageWithData:data];
+        }
+    }];
     titleView.text = self.album.name;
     subTitleView.text = [NSString localizedStringWithFormat:@"Popularity: %0.f", self.album.popularity];
     subTitleView1.text = [NSString localizedStringWithFormat:@"Type: %@", self.album.type];
@@ -147,6 +154,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.tableView.allowsMultipleSelectionDuringEditing = NO;
+    self.edgesForExtendedLayout = UIRectEdgeAll;
+    
     
     // get the common empty table error message
     errorLabel = [CommonController getErrorLabel:self.tableView.frame withTitle:@"No Information" withMsg:@"There is no information to display for this album"];

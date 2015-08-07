@@ -171,9 +171,7 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
-    
     [super viewWillAppear:animated];
-    
     [self showEmptyTableLabel];
 }
 
@@ -322,17 +320,20 @@
         
     } else {
         oCell.titleLabel.text = a.name;
-        [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:a.image_url_large] queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-            
-            if (connectionError == nil) {
-                a.cached_image = data;
-                oCell.thumbImageView.image = [UIImage imageWithData:data];
-            } else {
-                NSLog(@"Error retrieving album art for album %@: %@", a.name, connectionError);
-                oCell.thumbImageView.image = [UIImage imageNamed:@"profile_default.jpg"];
-            }
-        }];
-
+        
+        if (a.cached_image) {
+            oCell.thumbImageView.image = [UIImage imageWithData:a.cached_image];
+        } else {
+            [sharedManager getArtworkAsync:a.image_url_small withCallback:^(NSData *data, NSError *error) {
+                if (error) {
+                    NSLog(@"Error retrieving artist art for artist %@: %@", a.name, error);
+                    oCell.thumbImageView.image = [UIImage imageNamed:@"profile_default.jpg"];
+                } else if (data) {
+                    a.cached_image = data;
+                    oCell.thumbImageView.image = [UIImage imageWithData:data];
+                }
+            }];
+        }
         oCell.subTitleLabel.text = [NSString stringWithFormat:@"popularity: %.0f", a.popularity];
         oCell.subTitleLabel2.text = [NSString localizedStringWithFormat:@"followers: %ld", a.followers];
         
