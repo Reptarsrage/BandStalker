@@ -30,47 +30,17 @@
                         <barButtonItem key="backBarButtonItem" title="Artists" id="TOy-3M-cAJ"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="rEF-Bw-bMJ">
                             <connections>
-                                <segue destination="Rli-nn-ec4" kind="presentation" id="cUx-Ob-ACV"/>
+                                <segue destination="pm1-Ha-QnF" kind="show" id="erI-CF-cu8"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <segue destination="vH9-h3-vMz" kind="show" identifier="ArtistDrilldownSegue" id="Rl9-Q1-9QP"/>
+                        <segue destination="9lk-Jx-JX2" kind="show" identifier="ArtistDrilldownSegue" id="T6Y-3T-0xu"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="XhD-DO-1SV" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2236" y="-194"/>
-        </scene>
-        <!--Artist Drilldown-->
-        <scene sceneID="hVv-rP-aGf">
-            <objects>
-                <tableViewController title="Artist Drilldown" id="tAO-OP-HiO" customClass="ArtistDrilldownTableViewController" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="CN4-gd-tv9">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="TrackTableViewCell" id="Q72-cx-WiM" customClass="TrackTableViewCell">
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Q72-cx-WiM" id="vJq-ZC-XKk">
-                                    <autoresizingMask key="autoresizingMask"/>
-                                </tableViewCellContentView>
-                            </tableViewCell>
-                        </prototypes>
-                        <connections>
-                            <outlet property="dataSource" destination="tAO-OP-HiO" id="Zrh-dc-c7S"/>
-                            <outlet property="delegate" destination="tAO-OP-HiO" id="3eY-2S-1JU"/>
-                        </connections>
-                    </tableView>
-                    <navigationItem key="navigationItem" id="URr-UM-jHX"/>
-                    <connections>
-                        <outlet property="nav" destination="URr-UM-jHX" id="eUR-Cm-hpB"/>
-                    </connections>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="nEd-vb-nHf" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="3860" y="-948"/>
         </scene>
         <!--Album Drilldown-->
         <scene sceneID="kYf-4j-oKO">
@@ -93,16 +63,13 @@
                             <outlet property="delegate" destination="G9B-aR-7U7" id="gis-J7-tkO"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Album" id="MkP-bm-gTm">
-                        <barButtonItem key="backBarButtonItem" title="Albums" id="QSP-MN-CNe"/>
+                    <navigationItem key="navigationItem" title="Album" id="tVx-Z4-ei3">
+                        <barButtonItem key="backBarButtonItem" title="Albums" id="pjG-5f-iIg"/>
                     </navigationItem>
-                    <connections>
-                        <outlet property="nav" destination="MkP-bm-gTm" id="ran-iv-s3f"/>
-                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NBA-gr-hV5" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3860" y="651"/>
+            <point key="canvasLocation" x="3048" y="595"/>
         </scene>
         <!--Add Artist-->
         <scene sceneID="Daa-h1-iQb">
@@ -113,7 +80,7 @@
                         <viewControllerLayoutGuide type="bottom" id="jPJ-9E-t7T"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="lht-hS-VGL">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter an artist name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="2Ki-ed-mk2" customClass="AddArtist">
@@ -144,7 +111,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AzU-KC-5V1" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="0Rx-qo-Y4y" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3860" y="-168"/>
+            <point key="canvasLocation" x="3048" y="-249"/>
         </scene>
         <!--Event-->
         <scene sceneID="ukh-lo-xr7">
@@ -200,7 +167,7 @@
                         <barButtonItem key="backBarButtonItem" title="Albums" id="wON-Gh-mtc"/>
                     </navigationItem>
                     <connections>
-                        <segue destination="sEU-TT-YkZ" kind="show" identifier="AlbumDrilldownSegue" id="5uJ-jd-u8P"/>
+                        <segue destination="G9B-aR-7U7" kind="show" identifier="AlbumDrilldownSegue" id="bna-Hf-kG0"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Js9-7j-euN" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -225,7 +192,7 @@
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ARH-wN-c8x" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="638" y="470"/>
+            <point key="canvasLocation" x="476" y="566"/>
         </scene>
         <!--Albums-->
         <scene sceneID="cgy-xR-Qd3">
@@ -265,59 +232,39 @@
             </objects>
             <point key="canvasLocation" x="1426" y="-168"/>
         </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="Qu5-Ia-YLR">
+        <!--Artist Drilldown-->
+        <scene sceneID="LJK-h4-nCu">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Rli-nn-ec4" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="YJk-Wk-sEk">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="pm1-Ha-QnF" kind="relationship" relationship="rootViewController" id="S1v-T7-gbJ"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="bCY-FW-eyS" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tableViewController title="Artist Drilldown" id="9lk-Jx-JX2" customClass="ArtistDrilldownTableViewController" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="XFe-FB-75w">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="TrackTableViewCell" id="5oo-Oe-5QF" customClass="TrackTableViewCell">
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="5oo-Oe-5QF" id="MZU-9r-0xi">
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="9lk-Jx-JX2" id="a4f-1r-ikY"/>
+                            <outlet property="delegate" destination="9lk-Jx-JX2" id="O8E-mR-0vl"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Artist" id="0uf-Zi-EKG">
+                        <barButtonItem key="backBarButtonItem" title="Artists" id="s8j-Jf-Xj9">
+                            <connections>
+                                <segue destination="a1H-hU-JgK" kind="unwind" unwindAction="unwindToList:" id="AtY-UC-tH6"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="HZM-V9-B6b" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="a1H-hU-JgK" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3048" y="-168"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="UcL-Zb-kXf">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="vH9-h3-vMz" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="aUB-cB-YJe">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="tAO-OP-HiO" kind="relationship" relationship="rootViewController" id="TXd-Zh-SKn"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Ngf-Vm-Cuy" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="3048" y="-948"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="Gzd-4v-dhr">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="sEU-TT-YkZ" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="cp9-pA-eIl">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="G9B-aR-7U7" kind="relationship" relationship="rootViewController" id="Fat-1u-cjx"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Uru-lx-kWV" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="3048" y="651"/>
+            <point key="canvasLocation" x="3048" y="-982"/>
         </scene>
         <!--Events-->
         <scene sceneID="Z7Y-nH-Hgn">

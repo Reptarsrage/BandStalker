@@ -49,13 +49,13 @@
     
     
     /*The data source enumerates the array of model objects and sends sectionForObject:collationStringSelector: to the collation manager on each iteration. This method takes as arguments a model object and a property or method of the object that it uses in collation. Each call returns the index of the section array to which the model object belongs, and that value is assigned to the sectionNumber property.*/
-    /*UILocalizedIndexedCollation *col = [UILocalizedIndexedCollation currentCollation];
+    UILocalizedIndexedCollation *col = [UILocalizedIndexedCollation currentCollation];
     NSInteger sect = [col sectionForObject:a collationStringSelector:@selector(name)];
     a.sectionNumber = sect;
     
     //find correct place and add item
     NSUInteger index = [[artists objectAtIndex:sect] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        if ([[(Artist *)obj name] caseInsensitiveCompare:a.name] == NSOrderedDescending) {
+        if ([[(Artist *)obj name] caseInsensitiveCompare:a.name] == NSOrderedSame) {
             *stop = YES;
             return YES;
         }
@@ -63,13 +63,15 @@
     }];
     
     if (index == NSNotFound) {
-        [[artists objectAtIndex:sect] addObject:a];
+         [sharedManager retrieveArtistInfoFromSpotify:a forController:self];
     } else {
-        [[artists objectAtIndex:sect] insertObject:a atIndex:index];
-    }*/
-    [sharedManager retrieveArtistInfoFromSpotify:a forController:self];
-    //[self.tableView reloadData];
-
+        // already added
+        NSLog(@"Duplicate artist added. Artist: %@.", a.name);
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:sect];
+        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Duplicate found" message:[NSString stringWithFormat:@"Artist '%@' already added.", a.name ] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
+    }
 }
 
 - (void) addAlbum:(Album *)album toArtist:(NSString *)artistName {
@@ -396,8 +398,7 @@
     // Pass the  object to the new view controller.
     if ([segue.identifier isEqualToString:@"ArtistDrilldownSegue"]) {
         Artist *a = (Artist *)sender;
-        UINavigationController *navController = [segue destinationViewController];
-        ArtistDrilldownTableViewController *SITViewController = (ArtistDrilldownTableViewController *)([navController viewControllers][0]);
+        ArtistDrilldownTableViewController *SITViewController = [segue destinationViewController];
         SITViewController.artist = a;
     }
 }

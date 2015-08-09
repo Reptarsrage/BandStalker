@@ -424,8 +424,7 @@
     // Pass the selected object to the new view controller.
     if ([segue.identifier isEqualToString:@"AlbumDrilldownSegue"]) {
         Album *a = (Album *)sender;
-        UINavigationController *navController = [segue destinationViewController];
-        AlbumDrilldownTableViewController *SITViewController = (AlbumDrilldownTableViewController *)([navController viewControllers][0]);
+        AlbumDrilldownTableViewController *SITViewController = [segue destinationViewController];
         SITViewController.album = a;
     }
 }
