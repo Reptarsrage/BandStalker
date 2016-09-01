@@ -180,7 +180,7 @@
     //self.tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, CGRectGetHeight(self.tabBarController.tabBar.frame), 0.0f);
     self.tableView.rowHeight = 80.0f;
     
-    NSMutableArray *eventsTemp = [NSMutableArray arrayWithObjects:nil];
+    NSMutableArray *eventsTemp = [NSMutableArray array];
     
     UILocalizedIndexedCollation *col = [UILocalizedIndexedCollation currentCollation];
     for (Event *a in eventsTemp) {

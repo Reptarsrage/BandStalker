@@ -14,7 +14,7 @@
 
 - (void)addToTracks: (Track *)track {
     if (!_tracks )
-        _tracks = [NSMutableArray arrayWithObjects:nil];
+        _tracks = [NSMutableArray array];
     
     //find correct place and add item
     NSUInteger index = [_tracks  indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {

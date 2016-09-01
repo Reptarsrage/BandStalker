@@ -42,7 +42,7 @@
 - (void) getUpcomingEventForArtist:(Artist *)artist withCallback:(BandsInTownEventInfoCallback)callback{
     NSString *name = [artist.name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     
-    NSURL *url = [NSURL URLWithString: [NSString stringWithFormat:@"http://api.bandsintown.com/events/search?artists[]=%@&location=%@&radius=%@&page=%@&per_page=%@&format=json&app_id=%@",name, @"Seattle,WA", @"50", @"1", @"50", app_id]];
+    NSURL *url = [NSURL URLWithString: [NSString stringWithFormat:@"https://api.bandsintown.com/artists/%@/events/search.json?api_version=2.0&location=%@&radius=%@&page=%@&per_page=%@&app_id=%@",name, @"Seattle,WA", @"50", @"1", @"50", app_id]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
                                                            cachePolicy:NSURLRequestReturnCacheDataElseLoad
                                                        timeoutInterval:20];
@@ -109,7 +109,7 @@
         // default values
         //someProperty = @"Default Property Value";
         app_id = @"bandStalker";
-        artistQueue = [NSMutableArray arrayWithObjects:nil];
+        artistQueue = [NSMutableArray array];
         newItems = NO;
     }
     return self;

@@ -112,6 +112,59 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8303BEF71D788DD20049FC2E /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				8459983B1B1FAC1C00B0B659 /* AddArtistViewController.h */,
+				8459983C1B1FAC1C00B0B659 /* AddArtistViewController.m */,
+				8459982F1B1F914100B0B659 /* ArtistsTableViewController.h */,
+				845998301B1F914100B0B659 /* ArtistsTableViewController.m */,
+				849944AB1B3D66D50080733F /* ArtistDrilldownTableViewController.h */,
+				849944AC1B3D66D50080733F /* ArtistDrilldownTableViewController.m */,
+				841938391B44ACD6004A76BF /* AlbumDrilldownTableViewController.h */,
+				8419383A1B44ACD7004A76BF /* AlbumDrilldownTableViewController.m */,
+				845998381B1FA5E400B0B659 /* AlbumsTableViewController.h */,
+				845998391B1FA5E400B0B659 /* AlbumsTableViewController.m */,
+				849533431B7441AB007D1149 /* EventsTableViewController.h */,
+				849533441B7441AB007D1149 /* EventsTableViewController.m */,
+				845EA6551B4DEB3F00491A06 /* CommonController.h */,
+				845EA6561B4DEB3F00491A06 /* CommonController.m */,
+			);
+			name = "View Controllers";
+			sourceTree = "<group>";
+		};
+		8303BEF81D788DFF0049FC2E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				84783B801B743852008A61D2 /* Event.h */,
+				84783B811B743852008A61D2 /* Event.m */,
+				849944AE1B3D6BAA0080733F /* TrackTableViewCell.h */,
+				849944AF1B3D6BAA0080733F /* TrackTableViewCell.m */,
+				8499449A1B2032080080733F /* customTableViewCell.h */,
+				8499449B1B2032080080733F /* customTableViewCell.m */,
+				8459983E1B1FB07D00B0B659 /* AddArtist.h */,
+				8459983F1B1FB07D00B0B659 /* AddArtist.m */,
+				8499449F1B3CEBD10080733F /* Track.h */,
+				849944A01B3CEBD10080733F /* Track.m */,
+				845998321B1F93AF00B0B659 /* Artist.h */,
+				845998331B1F93AF00B0B659 /* Artist.m */,
+				845998351B1F98F800B0B659 /* Album.h */,
+				845998361B1F98F800B0B659 /* Album.m */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		8303BEF91D788E4D0049FC2E /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				84783B7D1B743255008A61D2 /* bandsInTownManager.h */,
+				84783B7E1B743255008A61D2 /* bandsInTownManager.m */,
+				849944A51B3D35E70080733F /* SpotifyManager.h */,
+				849944A61B3D35E80080733F /* SpotifyManager.m */,
+			);
+			name = Managers;
+			sourceTree = "<group>";
+		};
 		845997FD1B1F846000B0B659 = {
 			isa = PBXGroup;
 			children = (
@@ -133,43 +186,14 @@
 		845998081B1F846000B0B659 /* BandStalker */ = {
 			isa = PBXGroup;
 			children = (
-				8459982F1B1F914100B0B659 /* ArtistsTableViewController.h */,
-				845998301B1F914100B0B659 /* ArtistsTableViewController.m */,
-				84783B801B743852008A61D2 /* Event.h */,
-				84783B811B743852008A61D2 /* Event.m */,
-				845EA6551B4DEB3F00491A06 /* CommonController.h */,
-				845EA6561B4DEB3F00491A06 /* CommonController.m */,
+				8303BEF91D788E4D0049FC2E /* Managers */,
+				8303BEF81D788DFF0049FC2E /* Views */,
+				8303BEF71D788DD20049FC2E /* View Controllers */,
 				845998411B1FDBA300B0B659 /* Spotify.framework */,
-				8459983B1B1FAC1C00B0B659 /* AddArtistViewController.h */,
-				8459983C1B1FAC1C00B0B659 /* AddArtistViewController.m */,
 				8459980D1B1F846000B0B659 /* AppDelegate.h */,
 				8459980E1B1F846000B0B659 /* AppDelegate.m */,
-				84783B7D1B743255008A61D2 /* bandsInTownManager.h */,
-				84783B7E1B743255008A61D2 /* bandsInTownManager.m */,
 				845998131B1F846000B0B659 /* Main.storyboard */,
 				8486BC101B72CBE400A6F20D /* Media.xcassets */,
-				849944AE1B3D6BAA0080733F /* TrackTableViewCell.h */,
-				849944AF1B3D6BAA0080733F /* TrackTableViewCell.m */,
-				849944AB1B3D66D50080733F /* ArtistDrilldownTableViewController.h */,
-				849944AC1B3D66D50080733F /* ArtistDrilldownTableViewController.m */,
-				841938391B44ACD6004A76BF /* AlbumDrilldownTableViewController.h */,
-				8419383A1B44ACD7004A76BF /* AlbumDrilldownTableViewController.m */,
-				8499449A1B2032080080733F /* customTableViewCell.h */,
-				8499449B1B2032080080733F /* customTableViewCell.m */,
-				8459983E1B1FB07D00B0B659 /* AddArtist.h */,
-				8459983F1B1FB07D00B0B659 /* AddArtist.m */,
-				845998381B1FA5E400B0B659 /* AlbumsTableViewController.h */,
-				845998391B1FA5E400B0B659 /* AlbumsTableViewController.m */,
-				849533431B7441AB007D1149 /* EventsTableViewController.h */,
-				849533441B7441AB007D1149 /* EventsTableViewController.m */,
-				8499449F1B3CEBD10080733F /* Track.h */,
-				849944A01B3CEBD10080733F /* Track.m */,
-				845998321B1F93AF00B0B659 /* Artist.h */,
-				845998331B1F93AF00B0B659 /* Artist.m */,
-				845998351B1F98F800B0B659 /* Album.h */,
-				845998361B1F98F800B0B659 /* Album.m */,
-				849944A51B3D35E70080733F /* SpotifyManager.h */,
-				849944A61B3D35E80080733F /* SpotifyManager.m */,
 				845998161B1F846000B0B659 /* Images.xcassets */,
 				8499449D1B3B570E0080733F /* profile_default.jpg */,
 				845998181B1F846000B0B659 /* LaunchScreen.xib */,
@@ -248,7 +272,7 @@
 		845997FE1B1F846000B0B659 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = Admin;
 				TargetAttributes = {
 					845998051B1F846000B0B659 = {
@@ -391,6 +415,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -466,6 +491,7 @@
 					"$(OTHER_LDFLAGS)",
 					"-ObjC",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -484,6 +510,7 @@
 					"$(OTHER_LDFLAGS)",
 					"-ObjC",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -502,6 +529,7 @@
 				);
 				INFOPLIST_FILE = BandStalkerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BandStalker.app/BandStalker";
 			};
@@ -517,6 +545,7 @@
 				);
 				INFOPLIST_FILE = BandStalkerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BandStalker.app/BandStalker";
 			};
